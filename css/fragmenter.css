@@ -1,0 +1,88 @@
+.fragment-description {
+    margin-bottom: 5px;
+}
+
+.card-block .form-group {
+    width: 95%;
+    margin: 5px;
+    overflow: visible;
+}
+
+div.row > div {
+    padding: 5px;
+}
+
+.bootstrap-tagsinput {
+    width: 100%;
+}
+
+.row button {
+    width: 100%;
+}
+
+.container {
+    margin: 5px;
+}
+
+.fragment-collapse-btn,
+.fragment-collapse-btn:hover {
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.fragment-collapse-btn[aria-expanded="true"]::before {
+    font-family: 'FontAwesome';
+    position: relative;
+    content: "\f106";
+}
+
+.fragment-collapse-btn[aria-expanded="false"]::before {
+    font-family: 'FontAwesome';
+    position: relative;
+    content: "\f107";
+}
+
+
+.fragment-row-collapsed {
+    background: rgb(67, 205, 247);
+    border-radius: 10px;
+}
+
+.start-input,
+.end-input {
+    padding: 2px 4px 2px 4px;
+    width: auto;
+    display: inline;
+    font-size: 0.75em;
+}
+
+.fragment-title{
+    font-size: 0.75em;
+}
+
+.start-end-control-panel {
+    display: inline;
+}
+
+.fragment-delete,
+.fragment-play {
+    font-size: 0.5em;
+}
+
+.fragment-delete {
+    float: right;
+}
+
+/* .tag {
+    color: black;
+    background: rgb(67, 205, 247);
+    padding: 4px;
+    vertical-align: middle;
+    border-radius: 5px;
+} */
+
+#addFragmentButton i{
+    position: absolute;
+    top: 10px;
+    left: 5px;
+}

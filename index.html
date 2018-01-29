@@ -4,91 +4,25 @@
 <head>
     <meta charset="utf-8" />
     <title>Ktv Fragmenter</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
-    <script src="typeahead.jquery.min.js"></script>
-    <link rel="stylesheet" href="bootstrap-tagsinput.css">
-    <script src="bootstrap-tagsinput.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap-tagsinput.css">
+    <link rel="stylesheet" href="css/bootstrap-tagsinput-typeahead.css">    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/fragmenter.css">
 
-    <style>
-        textarea.fragment-description {
-            height: 100%;
-        }
-
-        .form-group {
-            margin-bottom: 0px;
-            height: 100%;
-        }
-
-        div.row>div {
-            padding: 5px;
-        }
-
-        .bootstrap-tagsinput {
-            width: 100%;
-        }
-
-        .fragment-play{
-            width: 100%;
-        }
-    </style>
+    <script data-main="scripts/main" src="scripts/require.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <div class="row ">
 
-            <div class="col-xs-12 col-md-7">
-                <div class="form-group">
-                    <input type="text" placeholder="Вопрос фрагмента" class="form-control fragment-description" />
-                </div>
-            </div>
-
-            <div class="col-xs-5 col-md-2">
-                <div class="form-group">
-                    <input class="form-control start-input" type="time" value="00:00" />
-                </div>
-            </div>
-
-            <div class="col-xs-5 col-md-2">
-                <div class="form-group">
-                    <input class="form-control end-input" type="time" value="01:00" />
-                </div>
-            </div>
-
-            <div class="col-xs-2 col-md-1">
-                <button type="button" class="btn fragment-play">
-                    <i class="fa fa-play"></i>
-                </button>
-            </div>
-
-        </div>
-
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <input type="text" placeholder="Ключ. слово" class="form-control fragment-tags" />
-                </div>
-            </div>
-        </div>
-
+    <div class="row" id="addFragmentButtonRow">
+        <button id="addFragmentButton" class="col-xs-12">
+            <i class="fa fa-plus"></i>
+            Добавить фрагмент
+        </button>
     </div>
-
-    <script>
-        $(function () {
-            $(".fragment-tags").tagsinput({
-                typeahead: {
-                    source: ['Amsterdam', 'Washington', 'Sydney', 'Beijing', 'Cairo']
-                },
-                freeInput: true
-            });
-        });
-    </script>
+    <div id="accordion" role="tablist" aria-multiselectable="true"></div>
 
 </body>
 
