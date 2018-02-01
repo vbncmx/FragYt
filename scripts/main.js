@@ -27,8 +27,12 @@ function getFragmentHtml(fragmentId) {
     return fragmentRowTemplate.replace(/{n}/g, fragmentId.toString());
 }
 
+// http://www.levibotelho.com/development/commit-a-file-with-the-github-api/#5a-the-easy-way
 function saveChanges() {
-    $.get("https://api.github.com/repos/vbncmx/vbncmx/git/refs/heads/master", function (data) {
+
+    var token = "{token}";
+
+    $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master", function (data) {
         var headCommitUrl = data.object.url;
         console.log(headCommitUrl);
         $.get(headCommitUrl, function (headCommit) {
@@ -41,18 +45,68 @@ function saveChanges() {
             $.ajax({
                 type: "POST",
                 beforeSend: function (request) {
-                    request.setRequestHeader("Authorization", "token {token}");
+                    request.setRequestHeader("Authorization", "token " + token);
                 },
-                url: "https://api.github.com/repos/vbncmx/vbncmx/git/blobs",
+                url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/blobs",
                 data: JSON.stringify(payload),
                 success: function (blobData) {
-                    $.get(headCommit.tree.url, function(treeData){
-                        // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/#5a-the-easy-way
+                    $.get(headCommit.tree.url, function (baseTree) {
+                        var newTreePayload = {
+                            "base_tree": baseTree.sha,
+                            "tree": [
+                                {
+                                    "path": "file_" + Date.now().toString() + ".txt",
+                                    "mode": "100644",
+                                    "type": "blob",
+                                    "sha": blobData.sha
+                                }
+                            ]
+                        };
+
+                        $.ajax({
+                            type: "POST",
+                            beforeSend: function (request) {
+                                request.setRequestHeader("Authorization", "token " + token);
+                            },
+                            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/trees",
+                            data: JSON.stringify(newTreePayload),
+                            success: function (newTree) {
+                                var newCommitPayload = {
+                                    "message": "Test github API " + Date.now().toString(),
+                                    "parents": [headCommit.sha],
+                                    "tree": newTree.sha
+                                };
+                                $.ajax({
+                                    type: "POST",
+                                    beforeSend: function (request) {
+                                        request.setRequestHeader("Authorization", "token " + token);
+                                    },
+                                    url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/commits",
+                                    data: JSON.stringify(newCommitPayload),
+                                    success: function (newCommit) {
+                                        var updateRefsPayload = {
+                                            "sha": newCommit.sha,
+                                            "force": true
+                                        };
+
+                                        $.ajax({
+                                            type: "PATCH",
+                                            beforeSend: function (request) {
+                                                request.setRequestHeader("Authorization", "token " + token);
+                                            },
+                                            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master",
+                                            data: JSON.stringify(updateRefsPayload),
+                                            success: function (result) {
+                                                console.log(result);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
                     });
                 }
             });
-
-            // console.log(headCommit);
         });
     });
 }
