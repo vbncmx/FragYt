@@ -73,16 +73,12 @@ div.row > div {
     float: right;
 }
 
-/* .tag {
-    color: black;
-    background: rgb(67, 205, 247);
-    padding: 4px;
-    vertical-align: middle;
-    border-radius: 5px;
-} */
-
 #addFragmentButton i{
     position: absolute;
     top: 10px;
     left: 5px;
+}
+
+.card-header{
+    padding: 6px 10px 6px 10px;
 }

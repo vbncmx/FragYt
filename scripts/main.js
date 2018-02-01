@@ -6,11 +6,12 @@ var options = {
         "typeahead": {
             deps: ['jquery'],
             init: function ($) {
-                return require.s.contexts._.registry['typeahead.js'].factory( $ );
+                return require.s.contexts._.registry['typeahead.js'].factory($);
             }
         }
     },
     paths: {
+        "githubdb": "js-git/mixins/github-db",
         "jquery": "https://code.jquery.com/jquery-3.3.1.min",
         "popper": "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min",
         "bootstrap": "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min",
@@ -26,13 +27,45 @@ function getFragmentHtml(fragmentId) {
     return fragmentRowTemplate.replace(/{n}/g, fragmentId.toString());
 }
 
+function saveChanges() {
+    $.get("https://api.github.com/repos/vbncmx/vbncmx/git/refs/heads/master", function (data) {
+        var headCommitUrl = data.object.url;
+        console.log(headCommitUrl);
+        $.get(headCommitUrl, function (headCommit) {
+
+            var payload = {
+                "content": "{here_goes_json}",
+                "encoding": "utf-8"
+            };
+
+            $.ajax({
+                type: "POST",
+                beforeSend: function (request) {
+                    request.setRequestHeader("Authorization", "token {token}");
+                },
+                url: "https://api.github.com/repos/vbncmx/vbncmx/git/blobs",
+                data: JSON.stringify(payload),
+                success: function (blobData) {
+                    $.get(headCommit.tree.url, function(treeData){
+                        // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/#5a-the-easy-way
+                    });
+                }
+            });
+
+            // console.log(headCommit);
+        });
+    });
+}
+
 require(["popper"], function (p) {
     window.Popper = p;
     require(["jquery"], function ($) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead"], function () {
 
+            saveChanges();
+
             var lastFragmentId = 0;
-            
+
             $("#addFragmentButton").click(function () {
                 $('.collapse').collapse('hide');
 
@@ -41,9 +74,9 @@ require(["popper"], function (p) {
                 var fragmentRow = $(html).hide().prependTo("#accordion").fadeIn(500);
                 $(".fragment-tags", fragmentRow).tagsinput({
                     typeaheadjs: {
-                        source: function(query, cb) {
+                        source: function (query, cb) {
                             cb(['Amsterdam', 'Washington', 'Sydney', 'Beijing', 'Cairo']);
-                        } 
+                        }
                     },
                     freeInput: true
                 });
