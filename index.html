@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
     <link rel="stylesheet" href="css/bootstrap-tagsinput.css">
-    <link rel="stylesheet" href="css/bootstrap-tagsinput-typeahead.css">    
+    <link rel="stylesheet" href="css/bootstrap-tagsinput-typeahead.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/fragmenter.css">
 
@@ -15,14 +15,27 @@
 </head>
 
 <body>
-
-    <div class="row" id="addFragmentButtonRow">
-        <button id="addFragmentButton" class="col-xs-12">
-            <i class="fa fa-plus"></i>
-            Добавить фрагмент
-        </button>
+    <div class="container">
+        <div class="form-group video-id-form">
+            <input class="form-control" id="video-id" type="text" placeholder="Укажите id видео (например rOj600sQ6VY)" />
+            <button id="load-yt-video">
+                <i class="fa fa-edit"></i>
+            </button>
+        </div>
+        <div id="fragmenter-panel">
+            <div id="player" class="vidflex"></div>
+            <div id="add-save-fragment-block">
+                <button id="addFragmentButton">
+                    <i class="fa fa-plus"></i>
+                    Добавить фрагмент
+                </button>
+                <button id="saveButton">
+                    <i class="fa fa-save"></i>
+                </button>
+            </div>
+            <div id="accordion" role="tablist" aria-multiselectable="true"></div>
+        </div>
     </div>
-    <div id="accordion" role="tablist" aria-multiselectable="true"></div>
 
 </body>
 

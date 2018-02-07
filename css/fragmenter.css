@@ -73,12 +73,24 @@ div.row > div {
     float: right;
 }
 
-#addFragmentButton i{
-    position: absolute;
-    top: 10px;
-    left: 5px;
+.video-id-form{
+    width: 200px;
+    margin: 5px auto;
+}
+
+.video-id-form button{
+    margin-top: 5px;
+    width: 100%;
 }
 
 .card-header{
     padding: 6px 10px 6px 10px;
+}
+
+#fragmenter-panel{
+    display: none;
+}
+
+.vidflex{
+    margin: 0 auto;
 }
