@@ -67,7 +67,7 @@ function toSeconds(hhmmss){
 // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/#5a-the-easy-way
 function saveChanges() {
 
-    var token = "22b0810a5802d89e4457b6e928e13e92b2bfa41e";
+    var token = "{token}";
 
     $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master", function (data) {
         var headCommitUrl = data.object.url;
