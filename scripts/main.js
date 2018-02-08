@@ -38,7 +38,16 @@ function getFragment(card) {
     return fragment;
 }
 
-function getData(){
+var player;
+window.onYouTubeIframeAPIReady = function () {
+    player = new YT.Player('player', {
+        height: '300',
+        width: '480',
+        videoId: document.getElementById("video-id").value,
+    });
+};
+
+function getData() {
     fragments = [];
     $(".card").each(function (index) {
         var card = $(this);
@@ -47,130 +56,158 @@ function getData(){
     });
 
     return {
+        id: document.getElementById("video-id").value,
+        title: player.getVideoData().title,
         fragments: fragments
     }
 }
 
-function toHhmmss(seconds){
+function toHhmmss(seconds) {
     var date = new Date(null);
     date.setSeconds(seconds);
     var result = date.toISOString().substr(11, 8);
     return result;
 }
 
-function toSeconds(hhmmss){
-    var a = hhmmss.split(':');    
+function toSeconds(hhmmss) {
+    var a = hhmmss.split(':');
     var seconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]);
     return seconds;
 }
 
-// http://www.levibotelho.com/development/commit-a-file-with-the-github-api/#5a-the-easy-way
+var ghToken = "8eb367eeb424bb65dea9596f1a90d9e10eac6aee";
+
 function saveChanges() {
 
-    var token = "{token}";
+    var videoData = getData();
 
-    $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master", function (data) {
-        var headCommitUrl = data.object.url;
-        console.log(headCommitUrl);
-        $.get(headCommitUrl, function (headCommit) {
+    var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoData.id;
 
-            var payload = {
-                "content": "{here_goes_json}",
-                "encoding": "utf-8"
-            };
-
-            $.ajax({
-                type: "POST",
-                beforeSend: function (request) {
-                    request.setRequestHeader("Authorization", "token " + token);
-                },
-                url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/blobs",
-                data: JSON.stringify(payload),
-                success: function (blobData) {
-                    $.get(headCommit.tree.url, function (baseTree) {
-                        var newTreePayload = {
-                            "base_tree": baseTree.sha,
-                            "tree": [
-                                {
-                                    "path": "file_" + Date.now().toString() + ".txt",
-                                    "mode": "100644",
-                                    "type": "blob",
-                                    "sha": blobData.sha
-                                }
-                            ]
-                        };
-
-                        $.ajax({
-                            type: "POST",
-                            beforeSend: function (request) {
-                                request.setRequestHeader("Authorization", "token " + token);
-                            },
-                            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/trees",
-                            data: JSON.stringify(newTreePayload),
-                            success: function (newTree) {
-                                var newCommitPayload = {
-                                    "message": "Test github API " + Date.now().toString(),
-                                    "parents": [headCommit.sha],
-                                    "tree": newTree.sha
-                                };
-                                $.ajax({
-                                    type: "POST",
-                                    beforeSend: function (request) {
-                                        request.setRequestHeader("Authorization", "token " + token);
-                                    },
-                                    url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/commits",
-                                    data: JSON.stringify(newCommitPayload),
-                                    success: function (newCommit) {
-                                        var updateRefsPayload = {
-                                            "sha": newCommit.sha,
-                                            "force": true
-                                        };
-
-                                        $.ajax({
-                                            type: "PATCH",
-                                            beforeSend: function (request) {
-                                                request.setRequestHeader("Authorization", "token " + token);
-                                            },
-                                            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master",
-                                            data: JSON.stringify(updateRefsPayload),
-                                            success: function (result) {
-                                                console.log(result);
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    });
-                }
+    $.ajax({
+        type: "GET",
+        url: videoBranchUrl,
+        success: function (branchData) {
+            console.log("branch exists")
+            console.log(branchData);
+            commitChanges(branchData.object.url, videoData);
+        },
+        error: function () { // there is no branch yet, create it first
+            console.log("no such branch, creating new")
+            $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master", function (masterBranchData) {
+                var videoBranchPayload = {
+                    ref: "refs/heads/" + videoData.id,
+                    sha: masterBranchData.object.sha
+                };
+                $.ajax({
+                    type: "POST",
+                    beforeSend: function (request) {
+                        request.setRequestHeader("Authorization", "token " + ghToken);
+                    },
+                    url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs",
+                    data: JSON.stringify(videoBranchPayload),
+                    success: function (branchData) {
+                        console.log(branchData);
+                        commitChanges(branchData.object.url, videoData);
+                    }
+                });
             });
+        }
+    });
+}
+
+// http://www.levibotelho.com/development/commit-a-file-with-the-github-api/#5a-the-easy-way
+function commitChanges(headCommitUrl, videoData) {
+    $.get(headCommitUrl, function (headCommit) {
+
+        var payload = {
+            "content": JSON.stringify(videoData),
+            "encoding": "utf-8"
+        };
+
+        var file = document.getElementById("video-id").value + ".json";
+
+        $.ajax({
+            type: "POST",
+            beforeSend: function (request) {
+                request.setRequestHeader("Authorization", "token " + ghToken);
+            },
+            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/blobs",
+            data: JSON.stringify(payload),
+            success: function (blobData) {
+                $.get(headCommit.tree.url, function (baseTree) {
+                    var newTreePayload = {
+                        "base_tree": baseTree.sha,
+                        "tree": [
+                            {
+                                "path": file,
+                                "mode": "100644",
+                                "type": "blob",
+                                "sha": blobData.sha
+                            }
+                        ]
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        beforeSend: function (request) {
+                            request.setRequestHeader("Authorization", "token " + ghToken);
+                        },
+                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/trees",
+                        data: JSON.stringify(newTreePayload),
+                        success: function (newTree) {
+                            var newCommitPayload = {
+                                "message": "Save",
+                                "parents": [headCommit.sha],
+                                "tree": newTree.sha
+                            };
+                            $.ajax({
+                                type: "POST",
+                                beforeSend: function (request) {
+                                    request.setRequestHeader("Authorization", "token " + ghToken);
+                                },
+                                url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/commits",
+                                data: JSON.stringify(newCommitPayload),
+                                success: function (newCommit) {
+                                    var updateRefsPayload = {
+                                        "sha": newCommit.sha,
+                                        "force": true
+                                    };
+
+                                    $.ajax({
+                                        type: "PATCH",
+                                        beforeSend: function (request) {
+                                            request.setRequestHeader("Authorization", "token " + ghToken);
+                                        },
+                                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master",
+                                        data: JSON.stringify(updateRefsPayload),
+                                        success: function (result) {
+                                            console.log(result);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+            }
         });
     });
 }
 
-var player;
-window.onYouTubeIframeAPIReady = function(){
-  player = new YT.Player('player', {
-    height: '200',
-    width: '320',
-    videoId: document.getElementById("video-id").value,
-  });
-};
-
 require(["popper"], function (p) {
     window.Popper = p;
     require(["jquery"], function ($) {
-        require(["bootstrap", "bootstrap-tagsinput", "typeahead"], function () {            
+        require(["bootstrap", "bootstrap-tagsinput", "typeahead"], function () {
 
             var lastFragmentId = 0;
-            
-            $("#load-yt-video").click(function(){
+
+            $("#load-yt-video").click(function () {
                 $(".video-id-form").fadeOut(500);
                 $("#fragmenter-panel").fadeIn(500);
                 require(["youtube"]);
             });
 
-            $("#saveButton").click(function(){
+            $("#saveButton").click(function () {
                 saveChanges();
             });
 
