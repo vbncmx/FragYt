@@ -75,7 +75,7 @@ function toSeconds(hhmmss) {
     return seconds;
 }
 
-var ghToken = "8eb367eeb424bb65dea9596f1a90d9e10eac6aee";
+var ghToken = "c047aa7a5a4e953a1f12ffa4da1c0217532b3007";
 
 function saveChanges() {
 
@@ -87,12 +87,9 @@ function saveChanges() {
         type: "GET",
         url: videoBranchUrl,
         success: function (branchData) {
-            console.log("branch exists")
-            console.log(branchData);
             commitChanges(branchData.object.url, videoData);
         },
         error: function () { // there is no branch yet, create it first
-            console.log("no such branch, creating new")
             $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master", function (masterBranchData) {
                 var videoBranchPayload = {
                     ref: "refs/heads/" + videoData.id,
@@ -106,7 +103,6 @@ function saveChanges() {
                     url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs",
                     data: JSON.stringify(videoBranchPayload),
                     success: function (branchData) {
-                        console.log(branchData);
                         commitChanges(branchData.object.url, videoData);
                     }
                 });
@@ -120,7 +116,7 @@ function commitChanges(headCommitUrl, videoData) {
     $.get(headCommitUrl, function (headCommit) {
 
         var payload = {
-            "content": JSON.stringify(videoData),
+            "content": encodeURIComponent(JSON.stringify(videoData)),
             "encoding": "utf-8"
         };
 
@@ -134,17 +130,29 @@ function commitChanges(headCommitUrl, videoData) {
             url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/blobs",
             data: JSON.stringify(payload),
             success: function (blobData) {
-                $.get(headCommit.tree.url, function (baseTree) {
+                var treeUrl = headCommit.tree.url + "?recursive=1";
+
+                $.get(treeUrl, function (currentTreeData) {
+
+                    var tree = currentTreeData.tree;
+                    var file = tree.find(function (f) {
+                        return f.path.indexOf(videoData.id) >= 0;
+                    });
+
+                    if (file == undefined) {
+                        tree.push({
+                            "path": videoData.id + ".json",
+                            "mode": "100644",
+                            "type": "blob",
+                            "sha": blobData.sha
+                        });
+                    }
+                    else {
+                        file.sha = blobData.sha;
+                    }
+
                     var newTreePayload = {
-                        "base_tree": baseTree.sha,
-                        "tree": [
-                            {
-                                "path": file,
-                                "mode": "100644",
-                                "type": "blob",
-                                "sha": blobData.sha
-                            }
-                        ]
+                        "tree": tree
                     };
 
                     $.ajax({
@@ -178,10 +186,10 @@ function commitChanges(headCommitUrl, videoData) {
                                         beforeSend: function (request) {
                                             request.setRequestHeader("Authorization", "token " + ghToken);
                                         },
-                                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master",
+                                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoData.id,
                                         data: JSON.stringify(updateRefsPayload),
                                         success: function (result) {
-                                            console.log(result);
+                                            console.log("saved!");
                                         }
                                     });
                                 }
@@ -194,24 +202,40 @@ function commitChanges(headCommitUrl, videoData) {
     });
 }
 
-function loadVideo(){
+function loadVideoData(commitUrl, videoId, successFunction) {
+    $.get(commitUrl, function (commitData) {
+        $.get(commitData.tree.url, function (treeData) {
+            var fileBlob = treeData.tree.find(function (f) {
+                return f.path.indexOf(videoId) >= 0;
+            });
+            if (fileBlob !== undefined) {
+                var blobUrl = fileBlob.url;
+                $.get(fileBlob.url, function (blobData) {
+                    var videoJson = decodeURIComponent(atob(blobData.content)).replace(/\+/g, " ");
+                    successFunction(JSON.parse(videoJson));
+                });
+            }
+        });
+    });
+}
+
+function loadVideo() {
     $(".video-id-form").fadeOut(500);
     $("#fragmenter-panel").fadeIn(500);
     var videoId = document.getElementById("video-id").value;
-    var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoId;                
-        $.ajax({
-            type: "GET",
-            url: videoBranchUrl,
-            success: function (branchData) {
-            var fileUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/contents/" + videoId + ".json?ref=" + videoId;
-
-                $.get(fileUrl, function(fileData){
-                    console.log(atob(fileData.content));
-                })   
-            }
-        });
+    var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoId;
+    $.ajax({
+        type: "GET",
+        url: videoBranchUrl,
+        success: function (branchData) {
+            loadVideoData(branchData.object.url, videoId, function(videoData){
+                console.log(videoData);
+            });
+        }
+    });
     require(["youtube"]);
 }
+
 
 require(["popper"], function (p) {
     window.Popper = p;
@@ -220,7 +244,7 @@ require(["popper"], function (p) {
 
             var lastFragmentId = 0;
 
-            $("#load-yt-video").click(function(){
+            $("#load-yt-video").click(function () {
                 loadVideo();
             });
 
