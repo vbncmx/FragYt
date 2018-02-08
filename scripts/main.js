@@ -194,6 +194,25 @@ function commitChanges(headCommitUrl, videoData) {
     });
 }
 
+function loadVideo(){
+    $(".video-id-form").fadeOut(500);
+    $("#fragmenter-panel").fadeIn(500);
+    var videoId = document.getElementById("video-id").value;
+    var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoId;                
+        $.ajax({
+            type: "GET",
+            url: videoBranchUrl,
+            success: function (branchData) {
+            var fileUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/contents/" + videoId + ".json?ref=" + videoId;
+
+                $.get(fileUrl, function(fileData){
+                    console.log(atob(fileData.content));
+                })   
+            }
+        });
+    require(["youtube"]);
+}
+
 require(["popper"], function (p) {
     window.Popper = p;
     require(["jquery"], function ($) {
@@ -201,10 +220,8 @@ require(["popper"], function (p) {
 
             var lastFragmentId = 0;
 
-            $("#load-yt-video").click(function () {
-                $(".video-id-form").fadeOut(500);
-                $("#fragmenter-panel").fadeIn(500);
-                require(["youtube"]);
+            $("#load-yt-video").click(function(){
+                loadVideo();
             });
 
             $("#saveButton").click(function () {
