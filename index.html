@@ -15,15 +15,18 @@
 </head>
 
 <body>
-
-
-    <div id="authBlock" class="input-group">
-        <input class="form-control input-sm" id="authInput" type="text" placeholder="Введите ваш токен с GitHub" />
-        <span class="input-group-btn">
-            <button id="authButton" class="btn btn-success fa fa-save"></button>
-        </span>
-        <a href="https://github.com/settings/tokens" target="_blank">Сгенерить токен</a>
-    </div>
+    <table id="authBlock">
+        <tr>
+            <td><input class="form-control" id="authInput" type="text" placeholder="Введите ваш токен с GitHub" /></td>
+            <td><button id="authButton" class="btn btn-success fa fa-save"></button></td>
+            <td class="githubLinkTd"><a href="https://github.com/settings/tokens" target="_blank">Сгенерить токен</a></td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align:center">
+                    Без токена вы не сможете сохранить данные!
+            </td>
+        </tr>
+    </table>
     <div id="fragmenterBlock">
         <div class="form-group video-id-form">
             <input class="form-control" id="video-id" type="text" placeholder="Укажите id видео (например rOj600sQ6VY)" />

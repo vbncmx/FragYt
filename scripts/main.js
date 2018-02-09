@@ -106,8 +106,6 @@ function nowHhmmss() {
         ("0" + time.getSeconds()).slice(-2);
 }
 
-var ghToken = "285bda16984f953b68f8bbe7efc689543c307b24";
-
 function saveChanges() {
 
     var videoData = getData();
@@ -129,7 +127,7 @@ function saveChanges() {
                 $.ajax({
                     type: "POST",
                     beforeSend: function (request) {
-                        request.setRequestHeader("Authorization", "token " + ghToken);
+                        request.setRequestHeader("Authorization", "token " + getToken());
                     },
                     url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs",
                     data: JSON.stringify(videoBranchPayload),
@@ -137,7 +135,8 @@ function saveChanges() {
                         commitChanges(branchData.object.url, videoData);
                     },
                     error: function(){
-
+                        setToken("");                        
+                        refreshAuthBlock();
                     }
                 });
             });
@@ -163,7 +162,7 @@ function commitChanges(headCommitUrl, videoData) {
         $.ajax({
             type: "POST",
             beforeSend: function (request) {
-                request.setRequestHeader("Authorization", "token " + ghToken);
+                request.setRequestHeader("Authorization", "token " + getToken());
             },
             url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/blobs",
             data: JSON.stringify(payload),
@@ -196,7 +195,7 @@ function commitChanges(headCommitUrl, videoData) {
                     $.ajax({
                         type: "POST",
                         beforeSend: function (request) {
-                            request.setRequestHeader("Authorization", "token " + ghToken);
+                            request.setRequestHeader("Authorization", "token " + getToken());
                         },
                         url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/trees",
                         data: JSON.stringify(newTreePayload),
@@ -209,7 +208,7 @@ function commitChanges(headCommitUrl, videoData) {
                             $.ajax({
                                 type: "POST",
                                 beforeSend: function (request) {
-                                    request.setRequestHeader("Authorization", "token " + ghToken);
+                                    request.setRequestHeader("Authorization", "token " + getToken());
                                 },
                                 url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/commits",
                                 data: JSON.stringify(newCommitPayload),
@@ -222,7 +221,7 @@ function commitChanges(headCommitUrl, videoData) {
                                     $.ajax({
                                         type: "PATCH",
                                         beforeSend: function (request) {
-                                            request.setRequestHeader("Authorization", "token " + ghToken);
+                                            request.setRequestHeader("Authorization", "token " + getToken());
                                         },
                                         url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoData.id,
                                         data: JSON.stringify(updateRefsPayload),
@@ -442,20 +441,41 @@ function getTitle(description) {
     return title;
 }
 
+function isTokenSet(){
+    return document.cookie !== undefined && document.cookie.length === 40;
+}
+
+function getToken()
+{
+    return document.cookie;
+}
+
+function setToken(token)
+{
+    document.cookie = token;
+}
+
+function refreshAuthBlock()
+{
+    if (isTokenSet()){
+        $("#authBlock").hide();                
+    }
+    else{
+        $("#authBlock").show();
+    }
+}
 
 require(["popper"], function (p) {
     window.Popper = p;
     require(["jquery"], function ($) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead"], function () {
 
-            var isAuthRequired = document.cookie === undefined || document.cookie.length !== 40;
-            if (isAuthRequired){
-                ("#authBlock").show();                
-            }
-            else{
-                ghToken = document.cookie;
-                ("#authBlock").hide();
-            }
+            refreshAuthBlock();
+
+            $("#authButton").click(function(){
+                setToken($("#authInput").val());
+                refreshAuthBlock();
+            });
 
             $("#load-yt-video").click(function () {
                 loadVideo();

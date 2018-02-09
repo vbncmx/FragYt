@@ -98,7 +98,7 @@ div.row > div {
 
 .video-id-form{
     width: 200px;
-    margin: 5px auto;
+    margin: 100px auto 0 auto;
 }
 
 .video-id-form button{
@@ -131,10 +131,23 @@ div.row > div {
 }
 
 #authBlock{
-    padding: 5px 10px 5px 10px;
     background-color: rgb(253, 193, 193);
+    width: 100%;
+}
+
+#authBlock td{
+    padding: 5px;
 }
 
 #authInput{
-    width: 200px;
+    width: 400px;
+}
+
+#authButton
+{
+    height: 100%;
+}
+
+.githubLinkTd{
+    width: 100%;
 }
