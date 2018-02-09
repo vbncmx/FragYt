@@ -23,16 +23,16 @@ var options = {
 
 requirejs.config(options);
 
-var fragmentRowTemplate = '<div class=card><div class=card-header id=heading{n} role=tab><h5 class=mb-0><a aria-controls=collapse{n} aria-expanded=true class=fragment-collapse-btn data-parent=#accordion data-toggle=collapse href=#collapse{n}></a><div class="form-group start-end-control-panel"><button class="btn fragment-start-minus-ten btn-success btn-sm"type=button>-10</button><button class="btn fragment-start-minus-one btn-success btn-sm"type=button>-1</button><input step="1" class="form-control start-input" type="text" value="{start}"><button class="btn fragment-start-plus-one btn-success btn-sm"type=button>+1</button><button class="btn fragment-start-plus-ten btn-success btn-sm"type=button>+10</button><button class="btn fragment-play btn-success btn-sm"type=button><i class="fa fa-play"/></button><input step="1" class="form-control end-input" type="text" value="{end}"><button class="btn fragment-step btn-success btn-sm"type=button><i class="fa fa-step-forward"/></button><button class="btn fragment-step-track btn-success btn-sm"type=button><i class="fa fa-clock-o"/><i class="fa fa-step-forward"/></button> <span class=fragment-title>{title}</span> <button class="btn fa fa-trash-o fragment-delete btn-danger btn-sm"type=button></button></div></h5></div><div class="collapse show"id=collapse{n} role=tabpanel aria-labelledby=heading{n}><div class=card-block><div class=form-group><input class="form-control fragment-description" placeholder="Опишите вопрос фрагмента" value="{description}"> <input class="form-control fragment-tags" placeholder="Ключевые слова (тэги)" value="{tags}"></div></div></div></div>';
+var fragmentRowTemplate = '<div class="card"><div class="card-header" id="heading{n}" role="tab"><h5 class="mb-0"><a aria-controls="collapse{n}" aria-expanded="true" class="fragment-collapse-btn" data-parent="#accordion" data-toggle="collapse" href="#collapse{n}"></a><div class="form-group start-end-control-panel"><button class="btn btn-sm btn-success modify-start" type="button">-10</button> <button class="btn btn-sm btn-success modify-start" type="button">-1</button> <input class="form-control start-input" value="{start}" step="1"> <button class="btn btn-sm btn-success modify-start" type="button">+1</button> <button class="btn btn-sm btn-success modify-start" type="button">+10</button> <button class="btn btn-sm btn-primary fragment-play" type="button"><i class="fa fa-play"></i></button> <button class="btn btn-sm btn-primary fragment-adjust-end" type="button"><i class="fa fa-angle-double-right"></i></button> <button class="btn btn-sm btn-success modify-end" type="button">-10</button> <button class="btn btn-sm btn-success modify-end" type="button">-1</button> <input class="form-control end-input" value="{end}" step="1"> <button class="btn btn-sm btn-success modify-end" type="button">+1</button> <button class="btn btn-sm btn-success modify-end" type="button">+10</button> <button class="btn btn-sm btn-primary fragment-step" type="button"><i class="fa fa-step-forward"></i></button> <button class="btn btn-sm btn-primary fragment-step-track" type="button"><i class="fa fa-clock-o"></i> <i class="fa fa-step-forward"></i></button> <span class="fragment-title">{title}</span> <button class="btn btn-sm btn-danger fa fa-trash-o fragment-delete" type="button"></button></div></h5></div><div class="collapse show" id="collapse{n}" role="tabpanel" aria-labelledby="heading{n}"><div class="card-block"><div class="form-group"><input class="form-control fragment-description" value="{description}" placeholder="Опишите вопрос фрагмента"> <input class="form-control fragment-tags" value="{tags}" placeholder="Ключевые слова (тэги)"></div></div></div></div>';
 var lastFragmentId = 0;
 function getFragmentHtml(fragmentData) {
     lastFragmentId++;
-    var indexedTemplate = fragmentRowTemplate.replace(/{n}/g, lastFragmentId.toString());
+    var indexedTemplate = fragmentRowTemplate.replace(/{n}/g, lastFragmentId.toString()).replace(/> /g, ">");
 
     if (fragmentData === undefined) { // so it is a new fragment
 
         var startSec = player.getCurrentTime();
-        var endSec = startSec + 60;
+        var endSec = startSec;
 
         return indexedTemplate
             .replace("{description}", "")
@@ -106,7 +106,7 @@ function nowHhmmss() {
         ("0" + time.getSeconds()).slice(-2);
 }
 
-var ghToken = "{token}";
+var ghToken = "285bda16984f953b68f8bbe7efc689543c307b24";
 
 function saveChanges() {
 
@@ -135,6 +135,9 @@ function saveChanges() {
                     data: JSON.stringify(videoBranchPayload),
                     success: function (branchData) {
                         commitChanges(branchData.object.url, videoData);
+                    },
+                    error: function(){
+
                     }
                 });
             });
@@ -238,45 +241,71 @@ function commitChanges(headCommitUrl, videoData) {
     });
 }
 
-function loadVideoData(commitUrl, videoId, successFunction) {
-    $.get(commitUrl, function (commitData) {
-        $.get(commitData.tree.url, function (treeData) {
-            var fileBlob = treeData.tree.find(function (f) {
-                return f.path.indexOf(videoId) >= 0;
-            });
-            if (fileBlob !== undefined) {
-                var blobUrl = fileBlob.url;
-                $.get(fileBlob.url, function (blobData) {
-                    var videoJson = decodeURIComponent(atob(blobData.content)).replace(/\+/g, " ");
-                    successFunction(JSON.parse(videoJson));
-                });
-            }
+
+function loadFragmentsFromBlob(blobUrl) {
+    $("#accordion").empty();
+    $.get(blobUrl, function (blobData) {
+        var videoJson = decodeURIComponent(atob(blobData.content)).replace(/\+/g, " ");
+        var videoData = JSON.parse(videoJson);
+        var fragments = videoData.fragments;
+
+        fragments.sort(function (f1, f2) {
+            return f1.start - f2.start;
         });
+        videoData.fragments.forEach((function (f) {
+            addFragmentRowToDom(f);
+        }));
+        if (videoData.timestamp !== undefined) {
+            setFeedback("Отредактировано " + new Date(videoData.timestamp).toLocaleString());
+        }
     });
 }
 
+function loadVideoData(commitUrl, videoId) {
+
+    $.get(commitUrl, function (commitData) {
+        var blobUrl;
+        if (commitData.tree !== undefined) {
+            $.get(commitData.tree.url, function (treeData) {
+                blobUrl = treeData.tree.find(function (f) { return f.path.indexOf(videoId) >= 0; }).url;
+                loadFragmentsFromBlob(blobUrl);
+            });
+
+        }
+        else {
+            blobUrl = commitData.files.find(function (f) { return f.filename.indexOf(videoId) >= 0; }).contents_url;
+            loadFragmentsFromBlob(blobUrl);
+        }
+    });
+
+    return false;
+}
+
+var commitLiTemplate = '<li class="commitLi"><a href="#" onclick="return loadVideoData(\'{commitUrl}\', \'{videoId}\')">{text}</a></li>';
 function loadVideo() {
     $(".video-id-form").fadeOut(500);
     $("#fragmenter-panel").fadeIn(500);
     var videoId = document.getElementById("video-id").value;
-    var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoId;
+    var branchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoId;
     $.ajax({
         type: "GET",
-        url: videoBranchUrl,
+        url: branchUrl,
         success: function (branchData) {
-            loadVideoData(branchData.object.url, videoId, function (videoData) {
-                var fragments = videoData.fragments;
-                fragments.sort(function (f1, f2) {
-                    return f1.start - f2.start;
+            var commitsUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/commits?sha=" + videoId + "&path=" + videoId + ".json";
+            $.get(commitsUrl, function (commits) {
+                $("#commitsMenu").empty();
+                commits.forEach(function (c) {
+                    var commitUrl = c.url;
+                    var commitDateUtc = new Date(c.commit.author.date).toLocaleString();
+                    var commitLi = commitLiTemplate
+                        .replace("{commitUrl}", commitUrl)
+                        .replace("{videoId}", videoId)
+                        .replace("{text}", commitDateUtc)
+                    $("#commitsMenu").append(commitLi);
                 });
-                videoData.fragments.forEach((function (f) {
-                    addFragmentRowToDom(f);
-                }));
-                if (videoData.timestamp !== undefined) {
-                    setFeedback("Отредактировано " + new Date(videoData.timestamp).toString());
-                }
-
             });
+
+            loadVideoData(branchData.object.url, videoId);
         }
     });
     require(["youtube"]);
@@ -295,7 +324,7 @@ function stopYtTracker() {
 
         currentTimeInput.css("font-weight", "normal");
         currentTrackButton.removeClass("btn-warning");
-        currentTrackButton.addClass("btn-success");
+        currentTrackButton.addClass("btn-primary");
 
         ytProgressTracker = null;
         currentTimeInput = null;
@@ -313,7 +342,7 @@ function startYtTracker(timeInput, trackButton) {
     currentTrackButton = trackButton;
 
     currentTimeInput.css("font-weight", "bold");
-    currentTrackButton.removeClass("btn-success");
+    currentTrackButton.removeClass("btn-primary");
     currentTrackButton.addClass("btn-warning");
 }
 
@@ -332,10 +361,12 @@ function addFragmentRowToDom(fragmentData) {
     });
 
     $(".fragment-delete", fragmentRow).click(function () {
+        stopYtTracker();
         fragmentRow.remove();
     });
 
     $(".fragment-play", fragmentRow).click(function () {
+        stopYtTracker();
         player.loadVideoById({
             'videoId': document.getElementById("video-id").value,
             'startSeconds': toSeconds($(".start-input", fragmentRow).val())
@@ -344,6 +375,7 @@ function addFragmentRowToDom(fragmentData) {
     });
 
     $(".fragment-step", fragmentRow).click(function () {
+        stopYtTracker();
         player.loadVideoById({
             'videoId': document.getElementById("video-id").value,
             'startSeconds': toSeconds($(".end-input", fragmentRow).val())
@@ -352,6 +384,8 @@ function addFragmentRowToDom(fragmentData) {
     });
 
     var endInput = $(".end-input", fragmentRow);
+    var startInput = $(".start-input", fragmentRow);
+
     var trackEndButton = $(".fragment-step-track", fragmentRow);
     trackEndButton.click(function () {
         if (currentTrackButton === trackEndButton) {
@@ -364,33 +398,29 @@ function addFragmentRowToDom(fragmentData) {
                 'startSeconds': toSeconds($(".end-input", fragmentRow).val())
                 // 'endSeconds': currentEnd
             });
-            startYtTracker(endInput, trackEndButton);            
+            startYtTracker(endInput, trackEndButton);
         }
     });
 
-    // .fragment-start-minus-one, .fragment-start-minus-ten, .fragment-start-plus-one, .fragment-start-plus-ten{
+    $(".fragment-adjust-end", fragmentRow).click(function () {
+        stopYtTracker();
+        endInput.val(startInput.val());
+    });
 
-    var startInput = $(".start-input", fragmentRow);
-    $(".fragment-start-minus-one", fragmentRow).click(function(){
+    $(".modify-end", fragmentRow).click(function () {
+        var dSec = parseInt($(this).text());
+        var seconds = toSeconds(endInput.val());
+        seconds = seconds + dSec;
+        seconds = seconds > 0 ? seconds : 0;
+        endInput.val(toHhmmss(seconds));
+    });
+
+    $(".modify-start", fragmentRow).click(function () {
+        var dSec = parseInt($(this).text());
         var seconds = toSeconds(startInput.val());
-        seconds = seconds >= 1 ? seconds - 1 : 0;
+        seconds = seconds + dSec;
+        seconds = seconds > 0 ? seconds : 0;
         startInput.val(toHhmmss(seconds));
-    });
-
-    $(".fragment-start-minus-ten", fragmentRow).click(function(){
-        var seconds = toSeconds(startInput.val());
-        seconds = seconds >= 10 ? seconds - 10 : 0;
-        startInput.val(toHhmmss(seconds));
-    });
-
-    $(".fragment-start-plus-one", fragmentRow).click(function(){
-        var seconds = toSeconds(startInput.val());        
-        startInput.val(toHhmmss(seconds + 1));
-    });
-
-    $(".fragment-start-plus-ten", fragmentRow).click(function(){
-        var seconds = toSeconds(startInput.val());        
-        startInput.val(toHhmmss(seconds + 10));
     });
 
     var titleSpan = $(".fragment-title", fragmentRow);
@@ -399,7 +429,7 @@ function addFragmentRowToDom(fragmentData) {
         var title = getTitle(descriptionInput.val());
         titleSpan.text(title);
     });
-    $(".fragment-description", fragmentRow).focus();    
+    $(".fragment-description", fragmentRow).focus();
 }
 
 function getTitle(description) {
@@ -417,6 +447,15 @@ require(["popper"], function (p) {
     window.Popper = p;
     require(["jquery"], function ($) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead"], function () {
+
+            var isAuthRequired = document.cookie === undefined || document.cookie.length !== 40;
+            if (isAuthRequired){
+                ("#authBlock").show();                
+            }
+            else{
+                ghToken = document.cookie;
+                ("#authBlock").hide();
+            }
 
             $("#load-yt-video").click(function () {
                 loadVideo();

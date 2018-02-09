@@ -59,20 +59,21 @@ div.row > div {
 .start-input,
 .end-input {
     padding: 2px 4px 2px 4px;
-    width: 100px;
+    width: 80px;
     display: inline;
     font-size: 0.75em;
 }
 
 .fragment-title{
     font-size: 0.75em;
+    margin-left: 10px;
 }
 
 .start-end-control-panel {
     display: inline;
 }
 
-.fragment-play, .fragment-step, .fragment-step-track{
+.fragment-play, .fragment-step, .fragment-step-track, .fragment-adjust-end{
     padding-top: 2px;
     padding-bottom: 2px;
     margin-right: 2px;
@@ -82,7 +83,7 @@ div.row > div {
     margin-right: 2px;
 }
 
-.fragment-start-minus-one, .fragment-start-minus-ten, .fragment-start-plus-one, .fragment-start-plus-ten{
+.modify-end, .modify-start{
     font-size: 16px;
     padding-top: 0px;
     padding-bottom: 1px;
@@ -119,4 +120,21 @@ div.row > div {
 
 .vidflex{
     margin: 0 auto;
+}
+
+.commit-dropdown{
+    display: inline;
+}
+
+.commit-dropdown li{
+    padding-left: 10px;
+}
+
+#authBlock{
+    padding: 5px 10px 5px 10px;
+    background-color: rgb(253, 193, 193);
+}
+
+#authInput{
+    width: 200px;
 }

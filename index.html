@@ -15,7 +15,16 @@
 </head>
 
 <body>
-    <div class="container">
+
+
+    <div id="authBlock" class="input-group">
+        <input class="form-control input-sm" id="authInput" type="text" placeholder="Введите ваш токен с GitHub" />
+        <span class="input-group-btn">
+            <button id="authButton" class="btn btn-success fa fa-save"></button>
+        </span>
+        <a href="https://github.com/settings/tokens" target="_blank">Сгенерить токен</a>
+    </div>
+    <div id="fragmenterBlock">
         <div class="form-group video-id-form">
             <input class="form-control" id="video-id" type="text" placeholder="Укажите id видео (например rOj600sQ6VY)" />
             <button id="load-yt-video" class="btn btn-success">
@@ -25,18 +34,23 @@
         <div id="fragmenter-panel">
             <div id="player" class="vidflex"></div>
             <div id="add-save-fragment-block">
-                <button id="addFragmentButton" class="btn btn-info">
+                <button id="addFragmentButton" class="btn btn-primary">
                     Добавить фрагмент
                 </button>
-                <button id="saveButton" class="btn btn-success">
+                <button id="saveButton" class="btn btn-primary">
                     <i class="fa fa-save"></i>
                 </button>
+                <div class="dropdown commit-dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Загрузить
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" id="commitsMenu"></ul>
+                </div>
                 <span id="feedback_lbl"></span>
             </div>
             <div id="accordion" role="tablist" aria-multiselectable="true"></div>
         </div>
     </div>
-
 </body>
 
 </html>
