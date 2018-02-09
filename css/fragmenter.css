@@ -8,6 +8,14 @@
     overflow: visible;
 }
 
+.collapse.show{
+    background-color: #6eb8f1;
+}
+
+.card-header{
+    background-color: #c8e4fa;
+}
+
 div.row > div {
     padding: 5px;
 }
@@ -51,7 +59,7 @@ div.row > div {
 .start-input,
 .end-input {
     padding: 2px 4px 2px 4px;
-    width: auto;
+    width: 100px;
     display: inline;
     font-size: 0.75em;
 }
@@ -64,9 +72,23 @@ div.row > div {
     display: inline;
 }
 
-.fragment-delete,
-.fragment-play {
-    font-size: 0.5em;
+.fragment-play, .fragment-step, .fragment-step-track{
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-right: 2px;
+}
+
+.btn i.fa-clock-o{
+    margin-right: 2px;
+}
+
+.fragment-start-minus-one, .fragment-start-minus-ten, .fragment-start-plus-one, .fragment-start-plus-ten{
+    font-size: 16px;
+    padding-top: 0px;
+    padding-bottom: 1px;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-right: 2px;
 }
 
 .fragment-delete {
@@ -88,7 +110,11 @@ div.row > div {
 }
 
 #fragmenter-panel{
-    display: none;
+    display: none;    
+}
+
+#add-save-fragment-block{
+    margin-bottom: 5px;
 }
 
 .vidflex{

@@ -18,20 +18,20 @@
     <div class="container">
         <div class="form-group video-id-form">
             <input class="form-control" id="video-id" type="text" placeholder="Укажите id видео (например rOj600sQ6VY)" />
-            <button id="load-yt-video">
+            <button id="load-yt-video" class="btn btn-success">
                 <i class="fa fa-edit"></i>
             </button>
         </div>
         <div id="fragmenter-panel">
             <div id="player" class="vidflex"></div>
             <div id="add-save-fragment-block">
-                <button id="addFragmentButton">
-                    <i class="fa fa-plus"></i>
+                <button id="addFragmentButton" class="btn btn-info">
                     Добавить фрагмент
                 </button>
-                <button id="saveButton">
+                <button id="saveButton" class="btn btn-success">
                     <i class="fa fa-save"></i>
                 </button>
+                <span id="feedback_lbl"></span>
             </div>
             <div id="accordion" role="tablist" aria-multiselectable="true"></div>
         </div>
