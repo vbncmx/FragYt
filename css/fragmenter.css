@@ -134,6 +134,7 @@ div.row > div {
 }
 
 #authBlock{
+    display: none;
     background-color: rgb(253, 193, 193);
     width: 100%;
 }
@@ -142,17 +143,17 @@ div.row > div {
     padding: 5px;
 }
 
-#authInput{
-    width: 400px;
+#tokenInput{
+    width: 300px;
+}
+
+#loginInput{
+    width: 200px;
 }
 
 #authButton
 {
     height: 100%;
-}
-
-.githubLinkTd{
-    width: 100%;
 }
 
 .playerTd{
@@ -194,6 +195,12 @@ div.row > div {
     width: 200px;
 }
 
+#profileBtn{
+    position: absolute;
+    top: 1px;
+    right: 1px;
+}
+
 .my-video-search-block{
     margin-left: 205px;
 }
@@ -206,4 +213,8 @@ div.row > div {
 
 #prButton{
     width: 250px;
+}
+
+.authHint{
+    font-size: 0.75em;
 }

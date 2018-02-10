@@ -145,7 +145,7 @@ function saveChanges() {
                 $.ajax({
                     type: "POST",
                     beforeSend: function (request) {
-                        request.setRequestHeader("Authorization", "token " + getToken());
+                        request.setRequestHeader("Authorization", "token " + getAuthData().token);
                     },
                     url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs",
                     data: JSON.stringify(videoBranchPayload),
@@ -153,7 +153,7 @@ function saveChanges() {
                         commitChanges(branchData.object.url, videoData);
                     },
                     error: function () {
-                        setToken("");
+                        setAuthData("");
                         refreshAuthBlock();
                     }
                 });
@@ -178,7 +178,7 @@ function commitChanges(headCommitUrl, videoData) {
         $.ajax({
             type: "POST",
             beforeSend: function (request) {
-                request.setRequestHeader("Authorization", "token " + getToken());
+                request.setRequestHeader("Authorization", "token " + getAuthData().token);
             },
             url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/blobs",
             data: JSON.stringify(payload),
@@ -217,7 +217,7 @@ function commitChanges(headCommitUrl, videoData) {
                     $.ajax({
                         type: "POST",
                         beforeSend: function (request) {
-                            request.setRequestHeader("Authorization", "token " + getToken());
+                            request.setRequestHeader("Authorization", "token " + getAuthData().token);
                         },
                         url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/trees",
                         data: JSON.stringify(newTreePayload),
@@ -230,7 +230,7 @@ function commitChanges(headCommitUrl, videoData) {
                             $.ajax({
                                 type: "POST",
                                 beforeSend: function (request) {
-                                    request.setRequestHeader("Authorization", "token " + getToken());
+                                    request.setRequestHeader("Authorization", "token " + getAuthData().token);
                                 },
                                 url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/commits",
                                 data: JSON.stringify(newCommitPayload),
@@ -243,7 +243,7 @@ function commitChanges(headCommitUrl, videoData) {
                                     $.ajax({
                                         type: "PATCH",
                                         beforeSend: function (request) {
-                                            request.setRequestHeader("Authorization", "token " + getToken());
+                                            request.setRequestHeader("Authorization", "token " + getAuthData().token);
                                         },
                                         url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + getBranchName(videoData.id),
                                         data: JSON.stringify(updateRefsPayload),
@@ -269,7 +269,7 @@ function forPullRequests(videoId, prsFunction) {
     $.ajax({
         type: "GET",
         beforeSend: function (request) {
-            request.setRequestHeader("Authorization", "token " + getToken());
+            request.setRequestHeader("Authorization", "token " + getAuthData().token);
         },
         url: prsUrl,
         success: prsFunction,
@@ -308,7 +308,7 @@ function getVideoStatus(videoId, statusFunction) {
                             $.ajax({
                                 type: "GET",
                                 beforeSend: function (request) {
-                                    request.setRequestHeader("Authorization", "token " + getToken());
+                                    request.setRequestHeader("Authorization", "token " + getAuthData().token);
                                 },
                                 url: latestPr.comments_url,
                                 success: function (commentsData) {
@@ -633,26 +633,28 @@ function getTitle(description) {
     return title;
 }
 
-function isTokenSet() {
-    var token = getToken();
-    return token !== undefined && token.length === 40;
+function isAuthDataValid() {
+    return getAuthData() !== undefined;
 }
 
-function getToken() {
-    return document.cookie;
+function getAuthData(){
+    if (document.cookie === undefined || document.cookie.length < 40){
+        return undefined;
+    }
+    var authData = JSON.parse(document.cookie);
+    return authData;
 }
 
-function setToken(token) {
-    document.cookie = token;
+function setAuthData(authData) {
+    log("Сохраняю имя пользователя и токен");
+    document.cookie = JSON.stringify(authData);
+    log("Имя пользователя и токен сохранены");
 }
 
 function refreshAuthBlock() {
-    if (isTokenSet()) {
-        $("#authBlock").hide();
-    }
-    else {
-        $("#authBlock").show();
-    }
+    var authData = getAuthData();
+    $("#loginInput").val(authData.login);
+    $("#tokenInput").val(authData.token);
 }
 
 function getBranchName(videoId) {
@@ -660,8 +662,8 @@ function getBranchName(videoId) {
 }
 
 function getBranchPrefix() {
-    var token = getToken();
-    return sha256(token) + "_";
+    var authData = getAuthData();
+    return sha256(authData.login) + "_";
 }
 
 function closePullRequest(videoId) {
@@ -677,7 +679,7 @@ function closePullRequest(videoId) {
             $.ajax({
                 type: "PATCH",
                 beforeSend: function (request) {
-                    request.setRequestHeader("Authorization", "token " + getToken());
+                    request.setRequestHeader("Authorization", "token " + getAuthData().token);
                 },
                 url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/pulls/" + pr.number,
                 data: JSON.stringify(payload),
@@ -715,7 +717,7 @@ function submitPullRequest(videoData) {
     $.ajax({
         type: "POST",
         beforeSend: function (request) {
-            request.setRequestHeader("Authorization", "token " + getToken());
+            request.setRequestHeader("Authorization", "token " + getAuthData().token);
         },
         url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/pulls",
         data: JSON.stringify(payload),
@@ -738,10 +740,63 @@ require(["popper"], function (p) {
             refreshAuthBlock();
             refreshVideoList();
 
+            if (!isAuthDataValid()){
+                log("Имя пользователя и токен не установлены, нажмите \"?\" в правом верхнем углу для инструкций");
+            }
+            else{
+                $.ajax({
+                    type:"GET",
+                    beforeSend: function (request) {
+                        request.setRequestHeader("Authorization", "token " + getAuthData().token);
+                    },
+                    url:"https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
+                    success:function(response){
+                        log("Вы участвуете в репозитории");
+                    },
+                    error:function(response){
+                        log("Вы не участвуете в репозитории");
+                    }
+                });
+            }
+
+            $("#profileBtn").click(function(){
+                if ($("#authBlock").is(":visible")){
+                    $("#authBlock").hide();
+                }
+                else{
+                    $("#authBlock").show();
+                }                
+            });
+
             $("#authButton").click(function () {
-                setToken($("#authInput").val());
+                var authData = {
+                    login: $("#loginInput").val(),
+                    token: $("#tokenInput").val()
+                };
+                setAuthData(authData);
                 refreshAuthBlock();
                 refreshVideoList();
+            });
+
+            $("#collabButton").click(function(){
+
+                log("Отправляю запрос на добавление в Collaborators");
+
+                var payload = {
+                    title: "Пожалуйста добавьте меня в Collaborators"
+                };
+                $.ajax({
+                    type: "POST",
+                    beforeSend: function (request) {
+                        request.setRequestHeader("Authorization", "token " + getAuthData().token);
+                    },
+                    url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
+                    data: JSON.stringify(payload),
+                    success: function(response){
+                        console.log(response);
+                        log("Запрос отправлен");
+                    }
+                });
             });
 
             $("#addVideoBtn").click(function () {

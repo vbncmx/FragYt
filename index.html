@@ -18,18 +18,28 @@
     <table id="authBlock">
         <tr>
             <td>
-                <input class="form-control" id="authInput" type="text" placeholder="Введите ваш токен с GitHub" />
+                <input class="form-control" id="loginInput" type="text" placeholder="Имя пользователя" />
+            </td>
+            <td>
+                <input class="form-control" id="tokenInput" type="text" placeholder="Токен с GitHub" />
             </td>
             <td>
                 <button id="authButton" class="btn btn-success fa fa-save"></button>
             </td>
-            <td class="githubLinkTd">
-                <a href="https://github.com/settings/tokens" target="_blank">Сгенерить токен</a>
+            <td>
+                <button id="collabButton" class="btn btn-success fa fa-send"></button>
             </td>
+            <td style="width: 100%"> </td>
+
         </tr>
         <tr>
-            <td colspan="3" style="text-align:center">
-                Без токена вы не сможете сохранить данные!
+            <td colspan="3" style="text-align:left" class="authHint">
+                1. <a href="https://github.com/" target="_blank">Зарегистрируйтесь</a> на github.com, а затем сгенерируйте токен (<a href="https://github.com/settings/tokens"
+                    target="_blank">Сгенерить токен</a>)
+                <br> 2. Введите токен, имя пользователя и нажмите <i class="fa fa-save"></i>
+                <br> 3. Отправьте запрос на добавление к репозиторию нажав кнопку <i class="fa fa-send"></i>
+                <br> 4. Ожидайте добавления
+                <br> 5. Вы можете узнать статус вашей заявки в окне логов при загрузке страницы
             </td>
         </tr>
     </table>
@@ -39,20 +49,22 @@
                 <div id="player" class="vidflex"></div>
             </td>
             <td class="videoListTd">
-                <span>
-                    <button id="addVideoBtn" class="btn btn btn-primary" style="width: 200px;">
-                        <i class="fa fa-youtube"></i> Добавить видео</button>
-                </span>
+                <button id="addVideoBtn" class="btn btn btn-primary">
+                    <i class="fa fa-youtube"></i> Добавить видео</button>
                 <div class="dropdown nav-item my-video-search-block">
                     <input class="dropdown-toggle form-control live-search-box" id="myVideoSearch" data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false" placeholder="Ваши видео" style="width: 200px;">
                     <div class="dropdown-menu live-search-list" aria-labelledby="dropdownMenuButton" id="videoList">
                     </div>
                 </div>
+                <button id="profileBtn" class="btn btn btn-primary">
+                    <i class="fa fa-question"></i>
+                </button>
                 <div class="logAreaBlock">
-                    <textarea id="logArea" disabled></textarea>
+                    <textarea id="logArea" disabled placeholder="Здесь отображаются логи ..."></textarea>
                 </div>
-            </td>            
+
+            </td>
         </tr>
     </table>
 
