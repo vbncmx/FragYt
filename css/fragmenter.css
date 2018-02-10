@@ -111,7 +111,7 @@ div.row > div {
 }
 
 #fragmenter-panel{
-    display: none;    
+    /* display: none;     */
 }
 
 #add-save-fragment-block{
@@ -120,6 +120,9 @@ div.row > div {
 
 .vidflex{
     margin: 0 auto;
+    width: 480px;
+    height: 300px;
+    background-color: black;
 }
 
 .commit-dropdown{
@@ -150,4 +153,57 @@ div.row > div {
 
 .githubLinkTd{
     width: 100%;
+}
+
+.playerTd{
+    width: 500px;
+    height: 300px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.videoListTd{
+    width: 100%;
+    height: 300px;
+    text-align: left;
+    vertical-align: top;
+    overflow: visible;
+}
+
+#logArea{
+    width: 100%;
+    height: 100%;
+    font-size: 0.75em;
+}
+
+.videoListTd h2{
+    display: inline;
+    margin-right: 100px;
+}
+
+#videoList{
+    padding: 0;    
+}
+
+.videoLi{
+    list-style: none;
+}
+
+#addVideoBtn{
+    float: left;
+    width: 200px;
+}
+
+.my-video-search-block{
+    margin-left: 205px;
+}
+
+.logAreaBlock{
+    width: 100%;
+    height: 260px;
+    margin-top: 2px;
+}
+
+#prButton{
+    width: 250px;
 }

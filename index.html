@@ -17,25 +17,49 @@
 <body>
     <table id="authBlock">
         <tr>
-            <td><input class="form-control" id="authInput" type="text" placeholder="Введите ваш токен с GitHub" /></td>
-            <td><button id="authButton" class="btn btn-success fa fa-save"></button></td>
-            <td class="githubLinkTd"><a href="https://github.com/settings/tokens" target="_blank">Сгенерить токен</a></td>
+            <td>
+                <input class="form-control" id="authInput" type="text" placeholder="Введите ваш токен с GitHub" />
+            </td>
+            <td>
+                <button id="authButton" class="btn btn-success fa fa-save"></button>
+            </td>
+            <td class="githubLinkTd">
+                <a href="https://github.com/settings/tokens" target="_blank">Сгенерить токен</a>
+            </td>
         </tr>
         <tr>
             <td colspan="3" style="text-align:center">
-                    Без токена вы не сможете сохранить данные!
+                Без токена вы не сможете сохранить данные!
             </td>
         </tr>
     </table>
+    <table>
+        <tr>
+            <td class="playerTd">
+                <div id="player" class="vidflex"></div>
+            </td>
+            <td class="videoListTd">
+                <span>
+                    <button id="addVideoBtn" class="btn btn btn-primary" style="width: 200px;">
+                        <i class="fa fa-youtube"></i> Добавить видео</button>
+                </span>
+                <div class="dropdown nav-item my-video-search-block">
+                    <input class="dropdown-toggle form-control live-search-box" id="myVideoSearch" data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false" placeholder="Ваши видео" style="width: 200px;">
+                    <div class="dropdown-menu live-search-list" aria-labelledby="dropdownMenuButton" id="videoList">
+                    </div>
+                </div>
+                <div class="logAreaBlock">
+                    <textarea id="logArea" disabled></textarea>
+                </div>
+            </td>            
+        </tr>
+    </table>
+
     <div id="fragmenterBlock">
-        <div class="form-group video-id-form">
-            <input class="form-control" id="video-id" type="text" placeholder="Укажите id видео (например rOj600sQ6VY)" />
-            <button id="load-yt-video" class="btn btn-success">
-                <i class="fa fa-edit"></i>
-            </button>
-        </div>
+
         <div id="fragmenter-panel">
-            <div id="player" class="vidflex"></div>
+
             <div id="add-save-fragment-block">
                 <button id="addFragmentButton" class="btn btn-primary">
                     Добавить фрагмент
@@ -44,12 +68,14 @@
                     <i class="fa fa-save"></i>
                 </button>
                 <div class="dropdown commit-dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Загрузить
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">История обработки
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" id="commitsMenu"></ul>
                 </div>
-                <span id="feedback_lbl"></span>
+                <button id="prButton" class="btn btn-primary">
+                    Отправить на рассмотрение
+                </button>
             </div>
             <div id="accordion" role="tablist" aria-multiselectable="true"></div>
         </div>

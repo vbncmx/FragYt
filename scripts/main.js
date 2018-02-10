@@ -1,3 +1,15 @@
+var videoStatus = {
+    New: "Новое видео",
+    Editing: "В обработке",
+    Submitted: "На рассмотрении",
+    Accepted: "Принято",
+    Rejected: "Снято с рассмотрения",
+    CouldNotLoad: "Не удалось загрузить статус"
+};
+var currentVideoStatus = videoStatus.CouldNotLoad;
+
+var sha256 = function a(b) { function c(a, b) { return a >>> b | a << 32 - b } for (var d, e, f = Math.pow, g = f(2, 32), h = "length", i = "", j = [], k = 8 * b[h], l = a.h = a.h || [], m = a.k = a.k || [], n = m[h], o = {}, p = 2; 64 > n; p++)if (!o[p]) { for (d = 0; 313 > d; d += p)o[d] = p; l[n] = f(p, .5) * g | 0, m[n++] = f(p, 1 / 3) * g | 0 } for (b += "\x80"; b[h] % 64 - 56;)b += "\x00"; for (d = 0; d < b[h]; d++) { if (e = b.charCodeAt(d), e >> 8) return; j[d >> 2] |= e << (3 - d) % 4 * 8 } for (j[j[h]] = k / g | 0, j[j[h]] = k, e = 0; e < j[h];) { var q = j.slice(e, e += 16), r = l; for (l = l.slice(0, 8), d = 0; 64 > d; d++) { var s = q[d - 15], t = q[d - 2], u = l[0], v = l[4], w = l[7] + (c(v, 6) ^ c(v, 11) ^ c(v, 25)) + (v & l[5] ^ ~v & l[6]) + m[d] + (q[d] = 16 > d ? q[d] : q[d - 16] + (c(s, 7) ^ c(s, 18) ^ s >>> 3) + q[d - 7] + (c(t, 17) ^ c(t, 19) ^ t >>> 10) | 0), x = (c(u, 2) ^ c(u, 13) ^ c(u, 22)) + (u & l[1] ^ u & l[2] ^ l[1] & l[2]); l = [w + x | 0].concat(l), l[4] = l[4] + w | 0 } for (d = 0; 8 > d; d++)l[d] = l[d] + r[d] | 0 } for (d = 0; 8 > d; d++)for (e = 3; e + 1; e--) { var y = l[d] >> 8 * e & 255; i += (16 > y ? 0 : "") + y.toString(16) } return i };
+
 var options = {
     baseUrl: 'scripts',
     shim: {
@@ -61,15 +73,21 @@ function getFragment(card) {
 }
 
 var player;
+var currentVideoId;
 window.onYouTubeIframeAPIReady = function () {
     player = new YT.Player('player', {
         height: '300',
         width: '480',
-        videoId: document.getElementById("video-id").value,
+        videoId: currentVideoId,
     });
 };
 
 function getData() {
+
+    if (currentVideoId === undefined || currentVideoId === null || currentVideoId.length < 1) {
+        return undefined;
+    }
+
     fragments = [];
     $(".card").each(function (index) {
         var card = $(this);
@@ -78,7 +96,7 @@ function getData() {
     });
 
     return {
-        id: document.getElementById("video-id").value,
+        id: currentVideoId,
         title: player.getVideoData().title,
         timestamp: Date.now(),
         version: "1.0.0.0",
@@ -109,8 +127,8 @@ function nowHhmmss() {
 function saveChanges() {
 
     var videoData = getData();
-
-    var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoData.id;
+    var branchName = getBranchName(videoData.id);
+    var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + branchName;
 
     $.ajax({
         type: "GET",
@@ -121,7 +139,7 @@ function saveChanges() {
         error: function () { // there is no branch yet, create it first
             $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master", function (masterBranchData) {
                 var videoBranchPayload = {
-                    ref: "refs/heads/" + videoData.id,
+                    ref: "refs/heads/" + branchName,
                     sha: masterBranchData.object.sha
                 };
                 $.ajax({
@@ -134,8 +152,8 @@ function saveChanges() {
                     success: function (branchData) {
                         commitChanges(branchData.object.url, videoData);
                     },
-                    error: function(){
-                        setToken("");                        
+                    error: function () {
+                        setToken("");
                         refreshAuthBlock();
                     }
                 });
@@ -147,7 +165,7 @@ function saveChanges() {
 // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/#5a-the-easy-way
 function commitChanges(headCommitUrl, videoData) {
 
-    setFeedback("Сохраняю ...");
+    log("Сохраняю ...");
     $("#saveButton").attr("disabled", "disabled");
 
     $.get(headCommitUrl, function (headCommit) {
@@ -156,8 +174,6 @@ function commitChanges(headCommitUrl, videoData) {
             "content": encodeURIComponent(JSON.stringify(videoData)),
             "encoding": "utf-8"
         };
-
-        var file = document.getElementById("video-id").value + ".json";
 
         $.ajax({
             type: "POST",
@@ -171,14 +187,20 @@ function commitChanges(headCommitUrl, videoData) {
 
                 $.get(treeUrl, function (currentTreeData) {
 
-                    var tree = currentTreeData.tree;
+                    var tree = [];
+                    currentTreeData.tree.forEach(function (i) {
+                        if (i.path != "data") {
+                            tree.push(i);
+                        }
+                    });
+
                     var file = tree.find(function (f) {
                         return f.path.indexOf(videoData.id) >= 0;
                     });
 
                     if (file == undefined) {
                         tree.push({
-                            "path": videoData.id + ".json",
+                            "path": "data/" + videoData.id + ".json",
                             "mode": "100644",
                             "type": "blob",
                             "sha": blobData.sha
@@ -201,7 +223,7 @@ function commitChanges(headCommitUrl, videoData) {
                         data: JSON.stringify(newTreePayload),
                         success: function (newTree) {
                             var newCommitPayload = {
-                                "message": "Save",
+                                "message": videoData.title,
                                 "parents": [headCommit.sha],
                                 "tree": newTree.sha
                             };
@@ -223,11 +245,12 @@ function commitChanges(headCommitUrl, videoData) {
                                         beforeSend: function (request) {
                                             request.setRequestHeader("Authorization", "token " + getToken());
                                         },
-                                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoData.id,
+                                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + getBranchName(videoData.id),
                                         data: JSON.stringify(updateRefsPayload),
                                         success: function (result) {
-                                            setFeedback("Сохранено в " + nowHhmmss());
+                                            log("Сохранено в " + nowHhmmss());
                                             $("#saveButton").removeAttr("disabled");
+                                            refreshVideoList();
                                         }
                                     });
                                 }
@@ -240,6 +263,68 @@ function commitChanges(headCommitUrl, videoData) {
     });
 }
 
+function forPullRequests(videoId, prsFunction) {
+    var branchName = getBranchName(videoId);
+    var prsUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/pulls?state=all&sort=created&direction=desc&head=" + branchName;
+    $.ajax({
+        type: "GET",
+        beforeSend: function (request) {
+            request.setRequestHeader("Authorization", "token " + getToken());
+        },
+        url: prsUrl,
+        success: prsFunction,
+        error: function () {
+            prsFunction(undefined);
+        }
+    });
+}
+
+function getVideoStatus(videoId, statusFunction) {
+
+    var branchName = getBranchName(videoId);
+    var branchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + branchName;
+    $.ajax({
+        type: "GET",
+        url: branchUrl,
+        success: function (branchData) {
+            forPullRequests(videoId, function (prsData) {
+                if (prsData === undefined) {
+                    statusFunction(videoStatus.CouldNotLoad, branchData);
+                }
+                else if (prsData.length == 0) {
+                    statusFunction(videoStatus.Editing, branchData);
+                }
+                else {
+                    var openedPrs = prsData.filter(function (pr) { return pr.state == "open"; });
+                    if (openedPrs.length > 0) {
+                        statusFunction(videoStatus.Submitted, branchData);
+                    }
+                    else {
+                        var latestPr = prsData[0];
+                        if (latestPr.merged_at !== null) {
+                            statusFunction(videoStatus.Accepted, branchData)
+                        }
+                        else {
+                            $.ajax({
+                                type: "GET",
+                                beforeSend: function (request) {
+                                    request.setRequestHeader("Authorization", "token " + getToken());
+                                },
+                                url: latestPr.comments_url,
+                                success: function (commentsData) {
+                                    statusFunction(videoStatus.Rejected, branchData, commentsData);
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        },
+        error: function () {
+            statusFunction(videoStatus.New);
+        }
+    });
+}
 
 function loadFragmentsFromBlob(blobUrl) {
     $("#accordion").empty();
@@ -255,7 +340,7 @@ function loadFragmentsFromBlob(blobUrl) {
             addFragmentRowToDom(f);
         }));
         if (videoData.timestamp !== undefined) {
-            setFeedback("Отредактировано " + new Date(videoData.timestamp).toLocaleString());
+            log("Загружено \"" + videoData.title + "\" от " + new Date(videoData.timestamp).toLocaleString());
         }
     });
 }
@@ -266,10 +351,12 @@ function loadVideoData(commitUrl, videoId) {
         var blobUrl;
         if (commitData.tree !== undefined) {
             $.get(commitData.tree.url, function (treeData) {
-                blobUrl = treeData.tree.find(function (f) { return f.path.indexOf(videoId) >= 0; }).url;
-                loadFragmentsFromBlob(blobUrl);
+                dataUrl = treeData.tree.find(function (f) { return f.path == "data"; }).url;
+                $.get(dataUrl, function (dataFolderData) {
+                    blobUrl = dataFolderData.tree.find(function (f) { return f.path.indexOf(videoId) >= 0; }).url;
+                    loadFragmentsFromBlob(blobUrl);
+                });
             });
-
         }
         else {
             blobUrl = commitData.files.find(function (f) { return f.filename.indexOf(videoId) >= 0; }).contents_url;
@@ -280,38 +367,138 @@ function loadVideoData(commitUrl, videoId) {
     return false;
 }
 
-var commitLiTemplate = '<li class="commitLi"><a href="#" onclick="return loadVideoData(\'{commitUrl}\', \'{videoId}\')">{text}</a></li>';
-function loadVideo() {
-    $(".video-id-form").fadeOut(500);
-    $("#fragmenter-panel").fadeIn(500);
-    var videoId = document.getElementById("video-id").value;
-    var branchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + videoId;
-    $.ajax({
-        type: "GET",
-        url: branchUrl,
-        success: function (branchData) {
-            var commitsUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/commits?sha=" + videoId + "&path=" + videoId + ".json";
-            $.get(commitsUrl, function (commits) {
-                $("#commitsMenu").empty();
-                commits.forEach(function (c) {
-                    var commitUrl = c.url;
-                    var commitDateUtc = new Date(c.commit.author.date).toLocaleString();
-                    var commitLi = commitLiTemplate
-                        .replace("{commitUrl}", commitUrl)
-                        .replace("{videoId}", videoId)
-                        .replace("{text}", commitDateUtc)
-                    $("#commitsMenu").append(commitLi);
-                });
+
+var videoLiTemplate = '<li data-search-term="{data-search-term}" class="videoLi"><a href="#" onclick="return loadVideo(\'{videoId}\')">{text}</a></li>';
+function refreshVideoList() {
+    $("#videoList").empty();
+    $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs", function (refsData) {
+
+        var branchPrefix = getBranchPrefix();
+        refsData.forEach(function (r) {
+
+            var branchPrefixIndex = r.ref.indexOf(branchPrefix);
+            if (branchPrefixIndex < 0) return;
+            var videoIdIndex = branchPrefixIndex + branchPrefix.length;
+            var videoId = r.ref.substring(videoIdIndex);
+
+            $.get(r.object.url, function (headCommitData) {
+                var text = headCommitData.message + " (" + videoId + ")";
+                var videoLiHtml = videoLiTemplate
+                    .replace("{videoId}", videoId)
+                    .replace("{text}", text)
+                    .replace("{data-search-term}", text.toLowerCase());
+                $("#videoList").append(videoLiHtml);
             });
 
-            loadVideoData(branchData.object.url, videoId);
-        }
+        });
     });
-    require(["youtube"]);
 }
 
-function setFeedback(feedback) {
-    $("#feedback_lbl").text(feedback);
+function refreshPrButton() {
+    var prButton = $("#prButton");
+    if (currentVideoStatus === videoStatus.Submitted) {
+        prButton.text("Убрать с рассмотрения");
+    }
+    else {
+        prButton.text("Отправить на рассмотрение");
+    }
+
+    var s = currentVideoStatus;
+    if (s === videoStatus.Editing || s === videoStatus.Rejected || s === videoStatus.Accepted || s === videoStatus.Submitted) {
+        prButton.removeAttr("disabled");
+    }
+    else {
+        prButton.attr("disabled", "disabled");
+    }
+}
+
+var prButtonInterval = null;
+function startPrButtonInterval() {
+    if (prButtonInterval !== null) {
+        stopPrButtonInterval();
+    }
+
+    var countdown = 120;
+    $("#prButton").attr("disabled", "disabled");
+    prButtonInterval = setInterval(function () {
+        if (countdown == 0) {
+            stopPrButtonInterval();
+        } else {
+            $("#prButton").text(countdown.toString());
+            countdown--;
+        }
+    }, 1000);
+}
+
+function stopPrButtonInterval() {
+    if (prButtonInterval !== null) {
+        clearInterval(prButtonInterval);
+        prButtonInterval = null;
+        refreshPrButton();
+    }
+}
+
+var commitLiTemplate = '<li class="commitLi"><a href="#" onclick="return loadVideoData(\'{commitUrl}\', \'{videoId}\')">{text}</a></li>';
+function loadVideo(videoId) {
+
+    stopPrButtonInterval();
+    $("#accordion").empty();
+    $("#commitsMenu").empty();
+    currentVideoId = videoId;
+
+    log("Загружаю видео " + videoId);
+    getVideoStatus(videoId, function (status, branchData, comments) {
+        currentVideoStatus = status;
+        refreshPrButton();
+        var statusLog = "Статус видео - " + status;
+        if (status == videoStatus.Rejected) {
+            statusLog += ". Комментарии: ";
+            comments.forEach(function (c) {
+                statusLog += c.user.login + ": " + c.body + ", ";
+            });
+            statusLog = statusLog.substring(0, statusLog.length - 2);
+        }
+        log(statusLog);
+
+        var branchName = getBranchName(currentVideoId);
+        var commitsUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/commits?sha=" + branchName + "&path=data/" + videoId + ".json";
+        $.get(commitsUrl, function (commits) {
+            commits.forEach(function (c) {
+                var commitUrl = c.url;
+                var commitDateUtc = new Date(c.commit.author.date).toLocaleString();
+                var commitLi = commitLiTemplate
+                    .replace("{commitUrl}", commitUrl)
+                    .replace("{videoId}", videoId)
+                    .replace("{text}", commitDateUtc)
+                $("#commitsMenu").append(commitLi);
+            });
+        });
+
+        loadVideoData(branchData.object.url, videoId);
+    });
+
+    if (player == undefined) {
+        require(["youtube"]);
+    }
+    else {
+        player.loadVideoById({
+            'videoId': currentVideoId
+        });
+    }
+
+    return false;
+}
+
+function log(feedback) {
+
+    var text = $("#logArea").text();
+    if (text !== undefined && text !== "") {
+        text = feedback + "\n" + text;
+    }
+    else {
+        text = feedback;
+    }
+    $("#logArea").text(text);
 }
 
 var ytProgressTracker = null;
@@ -367,7 +554,7 @@ function addFragmentRowToDom(fragmentData) {
     $(".fragment-play", fragmentRow).click(function () {
         stopYtTracker();
         player.loadVideoById({
-            'videoId': document.getElementById("video-id").value,
+            'videoId': currentVideoId,
             'startSeconds': toSeconds($(".start-input", fragmentRow).val())
             // 'endSeconds': currentEnd
         });
@@ -376,7 +563,7 @@ function addFragmentRowToDom(fragmentData) {
     $(".fragment-step", fragmentRow).click(function () {
         stopYtTracker();
         player.loadVideoById({
-            'videoId': document.getElementById("video-id").value,
+            'videoId': currentVideoId,
             'startSeconds': toSeconds($(".end-input", fragmentRow).val())
             // 'endSeconds': currentEnd
         });
@@ -393,7 +580,7 @@ function addFragmentRowToDom(fragmentData) {
         }
         else {
             player.loadVideoById({
-                'videoId': document.getElementById("video-id").value,
+                'videoId': currentVideoId,
                 'startSeconds': toSeconds($(".end-input", fragmentRow).val())
                 // 'endSeconds': currentEnd
             });
@@ -441,28 +628,101 @@ function getTitle(description) {
     return title;
 }
 
-function isTokenSet(){
-    return document.cookie !== undefined && document.cookie.length === 40;
+function isTokenSet() {
+    var token = getToken();
+    return token !== undefined && token.length === 40;
 }
 
-function getToken()
-{
+function getToken() {
     return document.cookie;
 }
 
-function setToken(token)
-{
+function setToken(token) {
     document.cookie = token;
 }
 
-function refreshAuthBlock()
-{
-    if (isTokenSet()){
-        $("#authBlock").hide();                
+function refreshAuthBlock() {
+    if (isTokenSet()) {
+        $("#authBlock").hide();
     }
-    else{
+    else {
         $("#authBlock").show();
     }
+}
+
+function getBranchName(videoId) {
+    return getBranchPrefix() + videoId;
+}
+
+function getBranchPrefix() {
+    var token = getToken();
+    return sha256(token) + "_";
+}
+
+function closePullRequest(videoId) {
+
+    log("Снимаю видео с рассмотрения");
+
+    forPullRequests(videoId, function (prsData) {        
+        var openPrs = prsData.filter(function (pr) { return pr.state == "open"; });
+        openPrs.forEach(function (pr) {
+            var payload = {
+                state: "closed"
+            };
+            $.ajax({
+                type: "PATCH",
+                beforeSend: function (request) {
+                    request.setRequestHeader("Authorization", "token " + getToken());
+                },
+                url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/pulls/" + pr.number,
+                data: JSON.stringify(payload),
+                success: function (prData) {
+                    currentVideoStatus = videoStatus.Rejected;
+                    startPrButtonInterval();
+                    log("Видео снято с рассмотрения");
+                },
+                error: function () {
+                    log("Не удалось снять видео с рассмотрения");
+                }
+            });
+        });
+    });
+}
+
+
+function submitPullRequest(videoData) {
+    var branchName = getBranchName(videoData.id);
+    var body = "";
+
+    videoData.fragments.forEach(function (f) {
+        body += toHhmmss(f.start) + " - " + toHhmmss(f.end) + ": " + f.description + "<br>";
+    });
+
+    var payload = {
+        "title": videoData.title + "(" + videoData.id + ")",
+        "body": body,
+        "head": branchName,
+        "base": "master"
+    }
+
+    log("Отправляю видео на рассмотрение");
+
+    $.ajax({
+        type: "POST",
+        beforeSend: function (request) {
+            request.setRequestHeader("Authorization", "token " + getToken());
+        },
+        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/pulls",
+        data: JSON.stringify(payload),
+        success: function (prData) {
+            log("Видео отправлено на рассмотрение");
+            currentVideoStatus = videoStatus.Submitted;
+            startPrButtonInterval();
+        },
+        error: function () {
+            log("Не удалось отправить видео на рассмотрение");
+        }
+    });
 }
 
 require(["popper"], function (p) {
@@ -471,14 +731,20 @@ require(["popper"], function (p) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead"], function () {
 
             refreshAuthBlock();
+            refreshVideoList();
 
-            $("#authButton").click(function(){
+            $("#authButton").click(function () {
                 setToken($("#authInput").val());
                 refreshAuthBlock();
+                refreshVideoList();
             });
 
-            $("#load-yt-video").click(function () {
-                loadVideo();
+            $("#addVideoBtn").click(function () {
+                var videoId = prompt("Укажите id видео, например 'm0GDiKCYDXw'")
+                if (videoId === undefined || videoId === null) {
+                    return false;
+                }
+                loadVideo(videoId);
             });
 
             $("#saveButton").click(function () {
@@ -488,6 +754,31 @@ require(["popper"], function (p) {
             $("#addFragmentButton").click(function () {
                 addFragmentRowToDom();
                 player.pauseVideo();
+            });
+
+            $('#myVideoSearch').on('keyup', function () {
+                var searchTerm = $(this).val().toLowerCase();
+                $('.videoLi').each(function () {
+                    if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            $("#prButton").click(function () {
+                var s = currentVideoStatus;
+                if (s === videoStatus.Editing || s === videoStatus.Rejected || s === videoStatus.Accepted) {
+                    var videoData = getData();
+                    if (videoData === undefined) {
+                        return;
+                    }
+                    submitPullRequest(videoData);
+                }
+                else if (s === videoStatus.Submitted) {
+                    closePullRequest(currentVideoId);
+                }
             });
         });
     });
