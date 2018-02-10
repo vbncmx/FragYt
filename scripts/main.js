@@ -452,16 +452,16 @@ function loadVideo(videoId) {
         refreshPrButton();
         var statusLog = "Статус видео - " + status;
         if (status == videoStatus.Rejected) {
-            if (comments.length === 0){
-                statusLog += " без комментариев";    
+            if (comments.length === 0) {
+                statusLog += " без комментариев";
             }
-            else{
+            else {
                 statusLog += " с комментариями: ";
                 comments.forEach(function (c) {
                     statusLog += c.user.login + ": " + c.body + ", ";
                 });
                 statusLog = statusLog.substring(0, statusLog.length - 2);
-            }            
+            }
         }
         log(statusLog);
 
@@ -637,8 +637,8 @@ function isAuthDataValid() {
     return getAuthData() !== undefined;
 }
 
-function getAuthData(){
-    if (document.cookie === undefined || document.cookie.length < 40){
+function getAuthData() {
+    if (document.cookie === undefined || document.cookie.length < 40) {
         return undefined;
     }
     var authData = JSON.parse(document.cookie);
@@ -653,10 +653,10 @@ function setAuthData(authData) {
 
 function refreshAuthBlock() {
     var authData = getAuthData();
-    if (authData !== undefined){
+    if (authData !== undefined) {
         $("#loginInput").val(authData.login);
         $("#tokenInput").val(authData.token);
-    }    
+    }
 }
 
 function getBranchName(videoId) {
@@ -672,7 +672,7 @@ function closePullRequest(videoId) {
 
     log("Снимаю видео с рассмотрения");
 
-    forPullRequests(videoId, function (prsData) {        
+    forPullRequests(videoId, function (prsData) {
         var openPrs = prsData.filter(function (pr) { return pr.state == "open"; });
         openPrs.forEach(function (pr) {
             var payload = {
@@ -742,32 +742,32 @@ require(["popper"], function (p) {
             refreshAuthBlock();
             refreshVideoList();
 
-            if (!isAuthDataValid()){
+            if (!isAuthDataValid()) {
                 log("Имя пользователя и токен не установлены, нажмите \"?\" в правом верхнем углу для инструкций");
             }
-            else{
+            else {
                 $.ajax({
-                    type:"GET",
+                    type: "GET",
                     beforeSend: function (request) {
                         request.setRequestHeader("Authorization", "token " + getAuthData().token);
                     },
-                    url:"https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
-                    success:function(response){
+                    url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
+                    success: function (response) {
                         log("Вы участвуете в репозитории");
                     },
-                    error:function(response){
+                    error: function (response) {
                         log("Вы не участвуете в репозитории");
                     }
                 });
             }
 
-            $("#profileBtn").click(function(){
-                if ($("#authBlock").is(":visible")){
+            $("#profileBtn").click(function () {
+                if ($("#authBlock").is(":visible")) {
                     $("#authBlock").hide();
                 }
-                else{
+                else {
                     $("#authBlock").show();
-                }                
+                }
             });
 
             $("#authButton").click(function () {
@@ -780,7 +780,7 @@ require(["popper"], function (p) {
                 refreshVideoList();
             });
 
-            $("#collabButton").click(function(){
+            $("#collabButton").click(function () {
 
                 log("Отправляю запрос на добавление в Collaborators");
 
@@ -794,7 +794,7 @@ require(["popper"], function (p) {
                     },
                     url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
                     data: JSON.stringify(payload),
-                    success: function(response){
+                    success: function (response) {
                         console.log(response);
                         log("Запрос отправлен");
                     }
@@ -802,11 +802,26 @@ require(["popper"], function (p) {
             });
 
             $("#addVideoBtn").click(function () {
-                var videoId = prompt("Укажите id видео, например 'm0GDiKCYDXw'")
-                if (videoId === undefined || videoId === null) {
+                var videoUrl = prompt("Укажите URL видео, например 'm0GDiKCYDXw'")
+                if (videoUrl === undefined || videoUrl === null) {
                     return false;
                 }
-                loadVideo(videoId);
+
+                var vEqualIndex = videoUrl.indexOf("?v=");
+                if (vEqualIndex > 0) {
+                    videoUrl = videoUrl.substring(vEqualIndex + 3, vEqualIndex + 3 + 11);
+                }
+                else {
+                    var questionIndex = videoUrl.indexOf("?");
+                    if (questionIndex > 0) {
+                        videoUrl = videoUrl.substring(0, questionIndex);
+                    }
+
+                    var forwardSlashIndex = videoUrl.lastIndexOf("/");
+                    videoUrl = videoUrl.substring(forwardSlashIndex + 1);
+                }
+
+                loadVideo(videoUrl);
             });
 
             $("#saveButton").click(function () {
