@@ -452,11 +452,16 @@ function loadVideo(videoId) {
         refreshPrButton();
         var statusLog = "Статус видео - " + status;
         if (status == videoStatus.Rejected) {
-            statusLog += ". Комментарии: ";
-            comments.forEach(function (c) {
-                statusLog += c.user.login + ": " + c.body + ", ";
-            });
-            statusLog = statusLog.substring(0, statusLog.length - 2);
+            if (comments.length === 0){
+                statusLog += " без комментариев";    
+            }
+            else{
+                statusLog += " с комментариями: ";
+                comments.forEach(function (c) {
+                    statusLog += c.user.login + ": " + c.body + ", ";
+                });
+                statusLog = statusLog.substring(0, statusLog.length - 2);
+            }            
         }
         log(statusLog);
 
