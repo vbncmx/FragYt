@@ -653,8 +653,10 @@ function setAuthData(authData) {
 
 function refreshAuthBlock() {
     var authData = getAuthData();
-    $("#loginInput").val(authData.login);
-    $("#tokenInput").val(authData.token);
+    if (authData !== undefined){
+        $("#loginInput").val(authData.login);
+        $("#tokenInput").val(authData.token);
+    }    
 }
 
 function getBranchName(videoId) {
