@@ -397,7 +397,7 @@ function refreshVideoList() {
 function refreshPrButton() {
     var prButton = $("#prButton");
     if (currentVideoStatus === videoStatus.Submitted) {
-        prButton.text("Убрать с рассмотрения");
+        prButton.text("Снять с рассмотрения");
     }
     else {
         prButton.text("Отправить на рассмотрение");
