@@ -35,12 +35,10 @@
     </table>
     <table>
         <tr>
-            <td class="playerTd">
-                <div id="player" class="vidflex"></div>
-            </td>
-            <td class="videoListTd">
+            <td colspan="2">
                 <button id="addVideoBtn" class="btn btn btn-primary">
-                    <i class="fa fa-youtube"></i> Добавить видео</button>
+                    <i class="fa fa-plus"></i>
+                </button>
                 <div class="dropdown nav-item my-video-search-block">
                     <input class="dropdown-toggle form-control live-search-box" id="myVideoSearch" data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false" placeholder="Ваши видео" style="width: 200px;">
@@ -48,12 +46,18 @@
                     </div>
                 </div>
                 <button id="profileBtn" class="btn btn btn-primary">
-                    <i class="fa fa-question"></i>
+                    <i class="fa fa-user"></i>
                 </button>
+            </td>
+        </tr>
+        <tr>
+            <td class="playerTd">
+                <div id="player" class="vidflex"></div>
+            </td>
+            <td class="videoListTd">
                 <div class="logAreaBlock">
                     <textarea id="logArea" disabled placeholder="Здесь отображаются логи ..."></textarea>
                 </div>
-
             </td>
         </tr>
     </table>
