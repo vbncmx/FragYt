@@ -802,7 +802,7 @@ require(["popper"], function (p) {
             });
 
             $("#addVideoBtn").click(function () {
-                var videoUrl = prompt("Укажите URL видео, например 'm0GDiKCYDXw'")
+                var videoUrl = prompt("Укажите URL видео с Youtube:")
                 if (videoUrl === undefined || videoUrl === null) {
                     return false;
                 }
