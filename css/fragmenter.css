@@ -193,10 +193,11 @@ div.row > div {
 #addVideoBtn{
     width: 40px;
     float: left;
+    margin-left: 2px;
 }
 
 #addVideoBtn i{
-    margin-right: 5px;    
+    margin-right: 5px;
 }
 
 #profileBtn{
@@ -206,7 +207,7 @@ div.row > div {
 }
 
 .my-video-search-block{
-    margin-left: 45px;
+    margin-left: 247px;
 }
 
 .logAreaBlock{
@@ -220,4 +221,13 @@ div.row > div {
 
 .authHint{
     font-size: 0.75em;
+}
+
+.turtorial-dropdown{
+    float: left;
+    width: 200px;
+}
+
+.turtorial-dropdown button{
+    width: 100%;
 }
