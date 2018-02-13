@@ -734,6 +734,24 @@ function submitPullRequest(videoData) {
     });
 }
 
+
+function parseOutVideoId(videoUrl){
+    var vEqualIndex = videoUrl.indexOf("?v=");
+    if (vEqualIndex > 0) {
+        videoUrl = videoUrl.substring(vEqualIndex + 3, vEqualIndex + 3 + 11);
+    }
+    else {
+        var questionIndex = videoUrl.indexOf("?");
+        if (questionIndex > 0) {
+            videoUrl = videoUrl.substring(0, questionIndex);
+        }
+        var forwardSlashIndex = videoUrl.lastIndexOf("/");
+        videoUrl = videoUrl.substring(forwardSlashIndex + 1);
+    }
+
+    return videoUrl;
+}
+
 require(["popper"], function (p) {
     window.Popper = p;
     require(["jquery"], function ($) {
@@ -802,26 +820,14 @@ require(["popper"], function (p) {
             });
 
             $("#addVideoBtn").click(function () {
-                var videoUrl = prompt("Укажите URL видео с Youtube:")
+                var videoUrl = prompt("Укажите URL видео с Youtube:");
                 if (videoUrl === undefined || videoUrl === null) {
                     return false;
                 }
 
-                var vEqualIndex = videoUrl.indexOf("?v=");
-                if (vEqualIndex > 0) {
-                    videoUrl = videoUrl.substring(vEqualIndex + 3, vEqualIndex + 3 + 11);
-                }
-                else {
-                    var questionIndex = videoUrl.indexOf("?");
-                    if (questionIndex > 0) {
-                        videoUrl = videoUrl.substring(0, questionIndex);
-                    }
+                var videoId = parseOutVideoId(videoUrl);
 
-                    var forwardSlashIndex = videoUrl.lastIndexOf("/");
-                    videoUrl = videoUrl.substring(forwardSlashIndex + 1);
-                }
-
-                loadVideo(videoUrl);
+                loadVideo(videoId);
             });
 
             $("#saveButton").click(function () {
@@ -856,6 +862,24 @@ require(["popper"], function (p) {
                 else if (s === videoStatus.Submitted) {
                     closePullRequest(currentVideoId);
                 }
+            });
+
+            $(".tutorial-link").click(function(){
+                
+                var videoUrl = $(this).attr("href")
+                var videoId = parseOutVideoId(videoUrl);
+                currentVideoId = videoId;
+
+                if (player == undefined) {
+                    require(["youtube"]);
+                }
+                else {
+                    player.loadVideoById({
+                        'videoId': videoId
+                    });
+                }
+
+                return false;
             });
         });
     });
