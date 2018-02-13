@@ -543,11 +543,11 @@ function addFragmentRowToDom(fragmentData) {
     var html = getFragmentHtml(fragmentData);
     var fragmentRow = $(html).hide().prependTo("#accordion").fadeIn(500);
     $(".fragment-tags", fragmentRow).tagsinput({
-        typeaheadjs: {
-            source: function (query, cb) {
-                cb(['Amsterdam', 'Washington', 'Sydney', 'Beijing', 'Cairo']);
-            }
-        },
+        // typeaheadjs: {
+        //     source: function (query, cb) {
+        //         cb(['Amsterdam', 'Washington', 'Sydney', 'Beijing', 'Cairo']);
+        //     }
+        // },
         freeInput: true
     });
 
