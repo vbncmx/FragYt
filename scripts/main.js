@@ -873,7 +873,7 @@ require(["popper"], function (p) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead", "git-connect"], function () {
 
             document.addEventListener("IsConnectedToGithubEvent", function (e) {                
-                e.detail.withCredentials(function(username, access_token, user_info){
+                e.detail.withCredentials(function(username, user_info, access_token){
                     authData.login = user_info;
                     authData.token = access_token;
                     $("#connectLink").hide();
