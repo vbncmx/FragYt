@@ -31,6 +31,9 @@
             XMLHttpRequest = window.XMLHttpRequest;
         };
         var code = connection.parseUrl('code');
+        console.log("code:");
+        console.log(code);
+
         if (code){
             get_request(connection.config['proxy'] + '/github_access_token?code=' + code + '&client_id=' + connection.config['client_id'], function(error, data){
                 if (error === null) {

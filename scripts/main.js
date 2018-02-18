@@ -887,8 +887,8 @@ require(["popper"], function (p) {
                     owner: 'vbncmx',  //application owner's github username
                     reponame: 'vbncmx.github.io', //application's repository name
                 });
+                alert("reconnecting!");
                 connection.connect();
-
             });
 
             var connection = window.connection({
