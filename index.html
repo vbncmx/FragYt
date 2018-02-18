@@ -15,24 +15,6 @@
 </head>
 
 <body>
-    <table id="authBlock">
-        <tr>
-            <td>
-                <input class="form-control" id="loginInput" type="text" placeholder="Имя пользователя" />
-            </td>
-            <td>
-                <input class="form-control" id="tokenInput" type="text" placeholder="Токен с GitHub" />
-            </td>
-            <td>
-                <button id="authButton" class="btn btn-success fa fa-save"></button>
-            </td>
-            <td>
-                <button id="collabButton" class="btn btn-success fa fa-send"></button>
-            </td>
-            <td style="width: 100%"> </td>
-
-        </tr>
-    </table>
     <table>
         <tr>
             <td colspan="2">
@@ -41,22 +23,33 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu tutorial-menu">
-                        <li><a href="https://youtu.be/a02t_qafEFo" class="tutorial-link">Как зарегистрироваться?</a></li>
-                        <li><a href="#">Как добавить видео?</a></li>
+                        <li>
+                            <a href="https://youtu.be/a02t_qafEFo" class="tutorial-link">Как зарегистрироваться?</a>
+                        </li>
+                        <li>
+                            <a href="#">Как добавить видео?</a>
+                        </li>
                     </ul>
                 </div>
+
                 <button id="addVideoBtn" class="btn btn btn-primary">
                     <i class="fa fa-plus"></i>
                 </button>
+
                 <div class="dropdown nav-item my-video-search-block">
                     <input class="dropdown-toggle form-control live-search-box" id="myVideoSearch" data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false" placeholder="Ваши видео" style="width: 200px;">
                     <div class="dropdown-menu live-search-list" aria-labelledby="dropdownMenuButton" id="videoList">
                     </div>
                 </div>
-                <button id="profileBtn" class="btn btn btn-primary">
-                    <i class="fa fa-user"></i>
-                </button>
+
+                <div id="authBlock">
+                    <a href="#" id="connectLink">Войти</a>
+                    <span id="disconnectSpan">Вы зашли как
+                        <strong id="login"></strong> |
+                        <a href="#" id="disconnectLink">Выйти</a>
+                    </span>
+                </div>
             </td>
         </tr>
         <tr>

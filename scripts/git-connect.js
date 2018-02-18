@@ -31,21 +31,13 @@
             XMLHttpRequest = window.XMLHttpRequest;
         };
         var code = connection.parseUrl('code');
-        console.log("code:");
-        console.log(code);
-
         if (code){
             get_request(connection.config['proxy'] + '/github_access_token?code=' + code + '&client_id=' + connection.config['client_id'], function(error, data){
                 if (error === null) {
-
-                    
-                    alert(data['access_token']);
-                    
                     connection.setCookie('github_access_token', data['access_token'], connection.config['expires']);
                     window.location.href = window.location.href.replace(/[\\?&]code=[^&#]*/, '');
                 } else{
                     console.log(error);   
-                    alert(error);
                 }
                 
             })

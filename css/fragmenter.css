@@ -133,16 +133,6 @@ div.row > div {
     padding-left: 10px;
 }
 
-#authBlock{
-    display: none;
-    background-color: #6eb8f1;
-    width: 100%;
-}
-
-#authBlock td{
-    padding: 5px;
-}
-
 #tokenInput{
     width: 300px;
 }
@@ -208,6 +198,7 @@ div.row > div {
 
 .my-video-search-block{
     margin-left: 247px;
+    width: 400px;
 }
 
 .logAreaBlock{
@@ -230,4 +221,10 @@ div.row > div {
 
 .turtorial-dropdown button{
     width: 100%;
+}
+
+#authBlock{
+    position: absolute;
+    right: 20px;
+    top: 10px;
 }

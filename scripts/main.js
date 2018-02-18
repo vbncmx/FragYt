@@ -874,15 +874,25 @@ require(["popper"], function (p) {
 
             document.addEventListener("IsConnectedToGithubEvent", function (e) {                
                 e.detail.withCredentials(function(username, access_token, user_info){
-                    console.log(username);
-                    console.log(access_token);
-                    console.log(user_info)
+                    authData.login = user_info;
+                    authData.token = access_token;
+                    $("#connectLink").hide();
+                    $("#disconnectLink").click(function(){
+                        e.detail.disconnect();
+                        return false;
+                    });
+                    $("#disconnectSpan").show();
+                    $("#login").text(authData.login);
+
                 });
             });
 
             document.addEventListener("IsDisconnectedFromGithubEvent", function (e) {
-                console.log("IsDisconnectedFromGithubEvent");
-                console.log(e);
+                $("#connectLink").show();
+                $("#disconnectSpan").hide();
+                $("#connectLink").click(function(){
+                    e.detail.connect();
+                });
             });
 
             var connection = window.connection({
@@ -891,13 +901,7 @@ require(["popper"], function (p) {
                 expires: 7,  //optional, default: 7; the number of days after coockies expire        
                 owner: 'vbncmx',  //application owner's github username
                 reponame: 'vbncmx.github.io', //application's repository name
-            });
-
-            var isConnected = connection.isConnected();
-            if (isConnected === false){
-                alert("connecting!");
-                connection.connect();                
-            }
+            });            
         });
     });
 });
