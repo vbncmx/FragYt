@@ -880,6 +880,15 @@ require(["popper"], function (p) {
             document.addEventListener("IsDisconnectedFromGithubEvent", function (e) {
                 console.log("IsDisconnectedFromGithubEvent");
                 console.log(e);
+                var connection = window.connection({
+                    client_id: "8511d6cee6210c7b9420", //required; your application `client_id` in Github
+                    proxy: "http://wow-git-proxy.herokuapp.com", //required; Base_URI to your git-proxy server
+                    expires: 7,  //optional, default: 7; the number of days after coockies expire        
+                    owner: 'vbncmx',  //application owner's github username
+                    reponame: 'vbncmx.github.io', //application's repository name
+                });
+                connection.connect();
+
             });
 
             var connection = window.connection({
