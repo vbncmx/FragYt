@@ -882,7 +882,7 @@ require(["popper"], function (p) {
                         return false;
                     });
                     $("#disconnectSpan").show();
-                    $("#login").text(authData.login);
+                    $("#login").html(authData.login);
 
                 });
             });
