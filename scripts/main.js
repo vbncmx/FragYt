@@ -872,12 +872,12 @@ require(["popper"], function (p) {
     require(["jquery"], function ($) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead", "git-connect"], function () {
 
-            document.addEventListener("IsConnectedToGithubEvent", function (e) {
-                e.detail.withCredentials(function (err, username, access_token, userinfo) {
-                    console.log(username);
-                    console.log(access_token);
-                });
-            });
+            // document.addEventListener("IsConnectedToGithubEvent", function (e) {
+            //     e.detail.withCredentials(function (err, username, access_token, userinfo) {
+            //         console.log(username);
+            //         console.log(access_token);
+            //     });
+            // });
 
             var connection = window.connection({
                 client_id: "8511d6cee6210c7b9420", //required; your application `client_id` in Github
@@ -886,6 +886,9 @@ require(["popper"], function (p) {
                 owner: 'vbncmx',  //application owner's github username
                 reponame: 'vbncmx.github.io', //application's repository name
             });
+
+            console.log(connection.isConnected());
+            console.log(connection);
         });
     });
 });
