@@ -755,10 +755,129 @@ function getAuthData() {
     return authData;
 }
 
+function initialize() {
+
+    refreshVideoList();
+
+    $.ajax({
+        type: "GET",
+        beforeSend: function (request) {
+            request.setRequestHeader("Authorization", "token " + getAuthData().token);
+        },
+        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
+        success: function (response) {
+            log("Вы участвуете в репозитории");
+        },
+        error: function (response) {
+            log("Вы не участвуете в репозитории");
+        }
+    });
+
+    $("#profileBtn").click(function () {
+        if ($("#authBlock").is(":visible")) {
+            $("#authBlock").hide();
+        }
+        else {
+            $("#authBlock").show();
+        }
+    });
+
+    $("#collabButton").click(function () {
+
+        log("Отправляю запрос на добавление в Collaborators");
+
+        var payload = {
+            title: "Пожалуйста добавьте меня в Collaborators"
+        };
+        $.ajax({
+            type: "POST",
+            beforeSend: function (request) {
+                request.setRequestHeader("Authorization", "token " + getAuthData().token);
+            },
+            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
+            data: JSON.stringify(payload),
+            success: function (response) {
+                console.log(response);
+                log("Запрос отправлен");
+            }
+        });
+    });
+
+    $("#addVideoBtn").click(function () {
+        var videoUrl = prompt("Укажите URL видео с Youtube:");
+        if (videoUrl === undefined || videoUrl === null) {
+            return false;
+        }
+
+        var videoId = parseOutVideoId(videoUrl);
+
+        loadVideo(videoId);
+    });
+
+    $("#saveButton").click(function () {
+        saveChanges();
+    });
+
+    $("#addFragmentButton").click(function () {
+        addFragmentRowToDom();
+        player.pauseVideo();
+    });
+
+    $('#myVideoSearch').on('keyup', function () {
+        var searchTerm = $(this).val().toLowerCase();
+        $('.videoLi').each(function () {
+            if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+    $("#prButton").click(function () {
+        var s = currentVideoStatus;
+        if (s === videoStatus.Editing || s === videoStatus.Rejected || s === videoStatus.Accepted) {
+            var videoData = getData();
+            if (videoData === undefined) {
+                return;
+            }
+            submitPullRequest(videoData);
+        }
+        else if (s === videoStatus.Submitted) {
+            closePullRequest(currentVideoId);
+        }
+    });
+
+    $(".tutorial-link").click(function () {
+
+        var videoUrl = $(this).attr("href")
+        var videoId = parseOutVideoId(videoUrl);
+        currentVideoId = videoId;
+
+        if (player == undefined) {
+            require(["youtube"]);
+        }
+        else {
+            player.loadVideoById({
+                'videoId': videoId
+            });
+        }
+
+        return false;
+    });
+}
+
 require(["popper"], function (p) {
     window.Popper = p;
     require(["jquery"], function ($) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead", "git-connect"], function () {
+
+            document.addEventListener("IsConnectedToGithubEvent", function (e) {
+                e.detail.withCredentials(function (err, username, access_token, userinfo) {
+                    console.log(username);
+                    console.log(access_token);
+                });
+            });
 
             var connection = window.connection({
                 client_id: "8511d6cee6210c7b9420", //required; your application `client_id` in Github
@@ -766,127 +885,6 @@ require(["popper"], function (p) {
                 expires: 7,  //optional, default: 7; the number of days after coockies expire        
                 owner: 'vbncmx',  //application owner's github username
                 reponame: 'vbncmx.github.io', //application's repository name
-            });
-
-            connection.connect();
-            connection.withCredentials(function (err, username, access_token, user_info) {
-                authData.login = username;
-                authData.token = access_token;
-
-                console.log(username);
-                console.log(access_token);
-
-                return;
-
-                refreshVideoList();
-
-                $.ajax({
-                    type: "GET",
-                    beforeSend: function (request) {
-                        request.setRequestHeader("Authorization", "token " + getAuthData().token);
-                    },
-                    url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
-                    success: function (response) {
-                        log("Вы участвуете в репозитории");
-                    },
-                    error: function (response) {
-                        log("Вы не участвуете в репозитории");
-                    }
-                });
-
-                $("#profileBtn").click(function () {
-                    if ($("#authBlock").is(":visible")) {
-                        $("#authBlock").hide();
-                    }
-                    else {
-                        $("#authBlock").show();
-                    }
-                });
-
-                $("#collabButton").click(function () {
-
-                    log("Отправляю запрос на добавление в Collaborators");
-
-                    var payload = {
-                        title: "Пожалуйста добавьте меня в Collaborators"
-                    };
-                    $.ajax({
-                        type: "POST",
-                        beforeSend: function (request) {
-                            request.setRequestHeader("Authorization", "token " + getAuthData().token);
-                        },
-                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
-                        data: JSON.stringify(payload),
-                        success: function (response) {
-                            console.log(response);
-                            log("Запрос отправлен");
-                        }
-                    });
-                });
-
-                $("#addVideoBtn").click(function () {
-                    var videoUrl = prompt("Укажите URL видео с Youtube:");
-                    if (videoUrl === undefined || videoUrl === null) {
-                        return false;
-                    }
-
-                    var videoId = parseOutVideoId(videoUrl);
-
-                    loadVideo(videoId);
-                });
-
-                $("#saveButton").click(function () {
-                    saveChanges();
-                });
-
-                $("#addFragmentButton").click(function () {
-                    addFragmentRowToDom();
-                    player.pauseVideo();
-                });
-
-                $('#myVideoSearch').on('keyup', function () {
-                    var searchTerm = $(this).val().toLowerCase();
-                    $('.videoLi').each(function () {
-                        if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
-                            $(this).show();
-                        } else {
-                            $(this).hide();
-                        }
-                    });
-                });
-
-                $("#prButton").click(function () {
-                    var s = currentVideoStatus;
-                    if (s === videoStatus.Editing || s === videoStatus.Rejected || s === videoStatus.Accepted) {
-                        var videoData = getData();
-                        if (videoData === undefined) {
-                            return;
-                        }
-                        submitPullRequest(videoData);
-                    }
-                    else if (s === videoStatus.Submitted) {
-                        closePullRequest(currentVideoId);
-                    }
-                });
-
-                $(".tutorial-link").click(function () {
-
-                    var videoUrl = $(this).attr("href")
-                    var videoId = parseOutVideoId(videoUrl);
-                    currentVideoId = videoId;
-
-                    if (player == undefined) {
-                        require(["youtube"]);
-                    }
-                    else {
-                        player.loadVideoById({
-                            'videoId': videoId
-                        });
-                    }
-
-                    return false;
-                });
-
             });
         });
     });
