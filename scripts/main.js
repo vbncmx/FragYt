@@ -872,9 +872,12 @@ require(["popper"], function (p) {
     require(["jquery"], function ($) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead", "git-connect"], function () {
 
-            document.addEventListener("IsConnectedToGithubEvent", function (e) {
-                console.log("IsConnectedToGithubEvent");
-                console.log(e);
+            document.addEventListener("IsConnectedToGithubEvent", function (e) {                
+                e.detail.withCredentials(function(username, access_token, user_info){
+                    console.log(username);
+                    console.log(access_token);
+                    console.log(user_info)
+                });
             });
 
             document.addEventListener("IsDisconnectedFromGithubEvent", function (e) {
@@ -895,7 +898,6 @@ require(["popper"], function (p) {
                 alert("connecting!");
                 connection.connect();                
             }
-            
         });
     });
 });
