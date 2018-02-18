@@ -872,12 +872,15 @@ require(["popper"], function (p) {
     require(["jquery"], function ($) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead", "git-connect"], function () {
 
-            // document.addEventListener("IsConnectedToGithubEvent", function (e) {
-            //     e.detail.withCredentials(function (err, username, access_token, userinfo) {
-            //         console.log(username);
-            //         console.log(access_token);
-            //     });
-            // });
+            document.addEventListener("IsConnectedToGithubEvent", function (e) {
+                console.log("IsConnectedToGithubEvent");
+                console.log(e);
+            });
+
+            document.addEventListener("IsDisconnectedFromGithubEvent", function (e) {
+                console.log("IsDisconnectedFromGithubEvent");
+                console.log(e);
+            });
 
             var connection = window.connection({
                 client_id: "8511d6cee6210c7b9420", //required; your application `client_id` in Github
@@ -887,12 +890,12 @@ require(["popper"], function (p) {
                 reponame: 'vbncmx.github.io', //application's repository name
             });
 
-            var isConnected = connection.isConnected();
-            if (isConnected === false){
-                alert(isConnected);
-                connection.connect();                
-                console.log(connection);
-            }
+            // var isConnected = connection.isConnected();
+            // if (isConnected === false){
+            //     alert(isConnected);
+            //     connection.connect();                
+            //     console.log(connection);
+            // }
             
         });
     });
