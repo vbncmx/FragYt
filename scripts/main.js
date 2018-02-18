@@ -887,8 +887,13 @@ require(["popper"], function (p) {
                 reponame: 'vbncmx.github.io', //application's repository name
             });
 
-            console.log(connection.isConnected());
-            console.log(connection);
+            var isConnected = connection.isConnected();
+            if (isConnected === false){
+                alert(isConnected);
+                connection.connect();                
+                console.log(connection);
+            }
+            
         });
     });
 });
