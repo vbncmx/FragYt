@@ -770,127 +770,129 @@ require(["popper"], function (p) {
 
             if (!connection.isConnected()) {
                 connection.connect();
-                return;
             }
+            else {
 
-            connection.withCredentials(function (err, username, access_token, user_info) {
-                authData.login = username;
-                authData.token = access_token;
+                connection.withCredentials(function (err, username, access_token, user_info) {
+                    authData.login = username;
+                    authData.token = access_token;
 
-                console.log(username);
-                console.log(access_token);
+                    console.log(username);
+                    console.log(access_token);
 
-                return;
+                    return;
 
-                refreshVideoList();
+                    refreshVideoList();
 
-                $.ajax({
-                    type: "GET",
-                    beforeSend: function (request) {
-                        request.setRequestHeader("Authorization", "token " + getAuthData().token);
-                    },
-                    url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
-                    success: function (response) {
-                        log("Вы участвуете в репозитории");
-                    },
-                    error: function (response) {
-                        log("Вы не участвуете в репозитории");
-                    }
-                });
-
-                $("#profileBtn").click(function () {
-                    if ($("#authBlock").is(":visible")) {
-                        $("#authBlock").hide();
-                    }
-                    else {
-                        $("#authBlock").show();
-                    }
-                });
-
-                $("#collabButton").click(function () {
-
-                    log("Отправляю запрос на добавление в Collaborators");
-
-                    var payload = {
-                        title: "Пожалуйста добавьте меня в Collaborators"
-                    };
                     $.ajax({
-                        type: "POST",
+                        type: "GET",
                         beforeSend: function (request) {
                             request.setRequestHeader("Authorization", "token " + getAuthData().token);
                         },
-                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
-                        data: JSON.stringify(payload),
+                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
                         success: function (response) {
-                            console.log(response);
-                            log("Запрос отправлен");
+                            log("Вы участвуете в репозитории");
+                        },
+                        error: function (response) {
+                            log("Вы не участвуете в репозитории");
                         }
                     });
-                });
 
-                $("#addVideoBtn").click(function () {
-                    var videoUrl = prompt("Укажите URL видео с Youtube:");
-                    if (videoUrl === undefined || videoUrl === null) {
-                        return false;
-                    }
-
-                    var videoId = parseOutVideoId(videoUrl);
-
-                    loadVideo(videoId);
-                });
-
-                $("#saveButton").click(function () {
-                    saveChanges();
-                });
-
-                $("#addFragmentButton").click(function () {
-                    addFragmentRowToDom();
-                    player.pauseVideo();
-                });
-
-                $('#myVideoSearch').on('keyup', function () {
-                    var searchTerm = $(this).val().toLowerCase();
-                    $('.videoLi').each(function () {
-                        if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
-                            $(this).show();
-                        } else {
-                            $(this).hide();
+                    $("#profileBtn").click(function () {
+                        if ($("#authBlock").is(":visible")) {
+                            $("#authBlock").hide();
+                        }
+                        else {
+                            $("#authBlock").show();
                         }
                     });
-                });
 
-                $("#prButton").click(function () {
-                    var s = currentVideoStatus;
-                    if (s === videoStatus.Editing || s === videoStatus.Rejected || s === videoStatus.Accepted) {
-                        var videoData = getData();
-                        if (videoData === undefined) {
-                            return;
-                        }
-                        submitPullRequest(videoData);
-                    }
-                    else if (s === videoStatus.Submitted) {
-                        closePullRequest(currentVideoId);
-                    }
-                });
+                    $("#collabButton").click(function () {
 
-                $(".tutorial-link").click(function () {
+                        log("Отправляю запрос на добавление в Collaborators");
 
-                    var videoUrl = $(this).attr("href")
-                    var videoId = parseOutVideoId(videoUrl);
-                    currentVideoId = videoId;
-
-                    if (player == undefined) {
-                        require(["youtube"]);
-                    }
-                    else {
-                        player.loadVideoById({
-                            'videoId': videoId
+                        var payload = {
+                            title: "Пожалуйста добавьте меня в Collaborators"
+                        };
+                        $.ajax({
+                            type: "POST",
+                            beforeSend: function (request) {
+                                request.setRequestHeader("Authorization", "token " + getAuthData().token);
+                            },
+                            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
+                            data: JSON.stringify(payload),
+                            success: function (response) {
+                                console.log(response);
+                                log("Запрос отправлен");
+                            }
                         });
-                    }
+                    });
 
-                    return false;
+                    $("#addVideoBtn").click(function () {
+                        var videoUrl = prompt("Укажите URL видео с Youtube:");
+                        if (videoUrl === undefined || videoUrl === null) {
+                            return false;
+                        }
+
+                        var videoId = parseOutVideoId(videoUrl);
+
+                        loadVideo(videoId);
+                    });
+
+                    $("#saveButton").click(function () {
+                        saveChanges();
+                    });
+
+                    $("#addFragmentButton").click(function () {
+                        addFragmentRowToDom();
+                        player.pauseVideo();
+                    });
+
+                    $('#myVideoSearch').on('keyup', function () {
+                        var searchTerm = $(this).val().toLowerCase();
+                        $('.videoLi').each(function () {
+                            if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
+                                $(this).show();
+                            } else {
+                                $(this).hide();
+                            }
+                        });
+                    });
+
+                    $("#prButton").click(function () {
+                        var s = currentVideoStatus;
+                        if (s === videoStatus.Editing || s === videoStatus.Rejected || s === videoStatus.Accepted) {
+                            var videoData = getData();
+                            if (videoData === undefined) {
+                                return;
+                            }
+                            submitPullRequest(videoData);
+                        }
+                        else if (s === videoStatus.Submitted) {
+                            closePullRequest(currentVideoId);
+                        }
+                    });
+
+                    $(".tutorial-link").click(function () {
+
+                        var videoUrl = $(this).attr("href")
+                        var videoId = parseOutVideoId(videoUrl);
+                        currentVideoId = videoId;
+
+                        if (player == undefined) {
+                            require(["youtube"]);
+                        }
+                        else {
+                            player.loadVideoById({
+                                'videoId': videoId
+                            });
+                        }
+
+                        return false;
+                    });
+
                 });
-            });
+            }
         });
     });
 });
