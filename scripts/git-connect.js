@@ -43,7 +43,11 @@
                     
                     connection.setCookie('github_access_token', data['access_token'], connection.config['expires']);
                     window.location.href = window.location.href.replace(/[\\?&]code=[^&#]*/, '');
-                } else console.log(error);
+                } else{
+                    console.log(error);   
+                    alert(error);
+                }
+                
             })
         };
 
