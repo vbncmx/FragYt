@@ -892,6 +892,7 @@ require(["popper"], function (p) {
 
             var isConnected = connection.isConnected();
             if (isConnected === false){
+                alert("connecting!");
                 connection.connect();                
             }
             
