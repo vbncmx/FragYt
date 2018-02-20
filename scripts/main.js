@@ -804,8 +804,11 @@ function refreshLockerBlock() {
 
                     $("#collabButton").hide();
                     $("#collabLabel").show();
-                    var message = "Запрос на присоединение к репозиторию был отправлен {dt}. Ожидайте сообщения на ваш почтовый адрес";
-                    message = message.replace("{dt}", new Date(collabRequestDateMs).toLocaleString());
+                    var message = '<a href="{url}" target="_blank">Запрос на присоединение</a> к репозиторию был отправлен {dt}.<br>Ожидайте сообщения на ваш почтовый адрес';
+                    var collabRequestDate = new Date(parseInt(collabRequestDateMs));
+                    message = message
+                        .replace("{dt}", collabRequestDate.toLocaleString())
+                        .replace("{url}", localStorage.getItem("COLLAB_REQUEST_ISSUE_URL"));
                     $("#collabLabel").html(message);
 
                 }
@@ -832,7 +835,9 @@ function sendCollabRequest() {
             console.log("issueData:");
             console.log(issueData);
 
-            localStorage.setItem("COLLAB_REQUEST_DATE_MS", Date.now())
+            localStorage.setItem("COLLAB_REQUEST_DATE_MS", Date.now());
+            localStorage.setItem("COLLAB_REQUEST_ISSUE_URL", issueData.url);
+
             refreshLockerBlock();
         },
         error: function (jqXHR, error, errorThrown) {
