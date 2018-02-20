@@ -728,7 +728,6 @@ function submitPullRequest(videoData) {
     });
 }
 
-
 function parseOutVideoId(videoUrl) {
     var vEqualIndex = videoUrl.indexOf("?v=");
     if (vEqualIndex > 0) {
@@ -816,6 +815,11 @@ function refreshLockerBlock() {
 }
 
 function sendCollabRequest() {
+
+    var payload = {
+        title: "Пожалуйста добавьте меня в Collaborators"
+    };
+
     $.ajax({
         type: "POST",
         beforeSend: function (request) {
@@ -856,16 +860,6 @@ function initialize() {
         else {
             $("#authBlock").show();
         }
-    });
-
-    $("#collabButton").click(function () {
-
-        log("Отправляю запрос на добавление в Collaborators");
-
-        var payload = {
-            title: "Пожалуйста добавьте меня в Collaborators"
-        };
-
     });
 
     $("#addVideoBtn").click(function () {
