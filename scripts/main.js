@@ -786,9 +786,6 @@ function refreshLockerBlock() {
             url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
             success: function (collaboratorsResponse) { // user is collaborator
 
-                console.log("collaboratorsResponse:");
-                console.log(collaboratorsResponse);
-
                 $("#lockerBlock").hide();
                 
                 if (!isInitialized) {
@@ -797,7 +794,7 @@ function refreshLockerBlock() {
             },
             error: function (response) { // user is not collaborator
                 var collabRequestDateMs = localStorage.getItem("COLLAB_REQUEST_DATE_MS");
-                if (collabRequestDateMs === undefined) { // collab request was not sent yet
+                if (collabRequestDateMs === null) { // collab request was not sent yet
 
                     $("#collabButton").show();
                     $("#collabLabel").show();
