@@ -758,6 +758,10 @@ function getAuthData() {
 var isInitialized = false;
 function refreshLockerBlock() {
 
+    $("#connectButton").hide();
+    $("#collabWrapper").hide();
+    $("#collabButton").hide();
+    $("#collabLabel").hide();
     $("#lockerBlock").show();
 
     if (!window.connection().isConnected()) {

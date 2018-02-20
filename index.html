@@ -92,11 +92,11 @@
         </span>
     </div>
 
-    <div id="lockerBlock">
-        <button id="connectButton" class="btn-lg btn-primary" onclick="connectToGitHub()">
+    <div id="lockerBlock"  style="display: block">
+        <button id="connectButton" class="btn-lg btn-primary" onclick="connectToGitHub()" style="display: none">
             <i class="fa fa-github"></i>
             Войти через GitHub</button>
-        <div id="collabWrapper">
+        <div id="collabWrapper"  style="display: none">
             <label id="collabLabel">Необходимо отправить запрос на присоединение к репозиторию</label>
             <br>
             <button id="collabButton" class="btn-lg btn-primary" onclick="sendCollabRequest()">
