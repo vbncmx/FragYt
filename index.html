@@ -43,13 +43,7 @@
                     </div>
                 </div>
 
-                <div id="authBlock">
-                    <a href="#" id="connectLink" style="display: none">Войти</a>
-                    <span id="disconnectSpan" style="display: none">Вы вошли как
-                        <strong id="login"></strong> |
-                        <a href="#" id="disconnectLink">Выйти</a>
-                    </span>
-                </div>
+
             </td>
         </tr>
         <tr>
@@ -90,6 +84,27 @@
             <div id="accordion" role="tablist" aria-multiselectable="true"></div>
         </div>
     </div>
+
+    <div id="authBlock">
+        <span id="disconnectSpan" style="display: none">Вы вошли как
+            <strong id="login"></strong> |
+            <a href="#" id="disconnectLink">Выйти</a>
+        </span>
+    </div>
+
+    <div id="lockerBlock">
+        <button id="connectButton" class="btn-lg btn-primary" onclick="connectToGitHub()">
+            <i class="fa fa-github"></i>
+            Войти через GitHub</button>
+        <div id="collabWrapper">
+            <label id="collabLabel">Необходимо отправить запрос на присоединение к репозиторию</label>
+            <br>
+            <button id="collabButton" class="btn-lg btn-primary" onclick="sendCollabRequest()">
+                <i class="fa fa-send"></i>
+                Отправить</button>
+        </div>
+    </div>
+
 </body>
 
 </html>

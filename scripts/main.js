@@ -755,23 +755,91 @@ function getAuthData() {
     return authData;
 }
 
-function initialize() {
+var isInitialized = false;
+function refreshLockerBlock() {
 
-    refreshVideoList();
+    $("#lockerBlock").show();
 
+    if (!window.connection.isConnected()) {
+
+        $("#collabWrapper").hide();
+        $("#connectButton").show();
+
+    }
+    else { // check if user is collaborator
+
+        $("#connectButton").hide();
+        $("#collabWrapper").show();
+        $("#collabButton").hide();
+        $("#collabLabel").show();
+        $("#collabLabel").html("Проверяю репозиторий");
+
+        $.ajax({
+            type: "GET",
+            beforeSend: function (request) {
+                request.setRequestHeader("Authorization", "token " + getAuthData().token);
+            },
+            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
+            success: function (response) { // user is collaborator
+
+                $("#lockerBlock").hide();
+                
+                if (!isInitialized) {
+                    initialize();
+                }
+            },
+            error: function (response) { // user is not collaborator
+                var collabRequestDateMs = localStorage.getItem("COLLAB_REQUEST_DATE_MS");
+                if (collabRequestDateMs === undefined) { // collab request was not sent yet
+
+                    $("#collabButton").show();
+                    $("#collabLabel").show();
+                    $("#collabLabel").html("Необходимо присоединиться к репозиторию");
+
+                }
+                else { // collab request was sent
+
+                    $("#collabButton").hide();
+                    $("#collabLabel").show();
+                    var message = "Запрос на присоединение к репозиторию был отправлен {dt}. Ожидайте сообщения на ваш почтовый адрес";
+                    message = message.replace("{dt}", new Date(collabRequestDateMs).toLocaleString());
+                    $("#collabLabel").html(message);
+
+                }
+            }
+        });
+    }
+}
+
+function sendCollabRequest() {
     $.ajax({
-        type: "GET",
+        type: "POST",
         beforeSend: function (request) {
             request.setRequestHeader("Authorization", "token " + getAuthData().token);
         },
-        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
+        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
+        data: JSON.stringify(payload),
         success: function (response) {
-            log("Вы участвуете в репозитории");
+            localStorage.setItem("COLLAB_REQUEST_DATE_MS", Date.now())
+            refreshLockerBlock();
         },
-        error: function (response) {
-            log("Вы не участвуете в репозитории");
+        error: function (jqXHR, error, errorThrown) {
+            var messageText = "Ошибка. ";
+            if (jqXHR.status && jqXHR.status == 400) {
+                messageText += jqXHR.responseText;
+            }
+            $("#collabLabel").html(messageText);
         }
     });
+}
+
+function connectToGitHub() {
+    window.connection.connect();
+}
+
+function initialize() {
+
+    refreshVideoList();
 
     $("#profileBtn").click(function () {
         if ($("#authBlock").is(":visible")) {
@@ -789,18 +857,7 @@ function initialize() {
         var payload = {
             title: "Пожалуйста добавьте меня в Collaborators"
         };
-        $.ajax({
-            type: "POST",
-            beforeSend: function (request) {
-                request.setRequestHeader("Authorization", "token " + getAuthData().token);
-            },
-            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
-            data: JSON.stringify(payload),
-            success: function (response) {
-                console.log(response);
-                log("Запрос отправлен");
-            }
-        });
+
     });
 
     $("#addVideoBtn").click(function () {
@@ -865,6 +922,8 @@ function initialize() {
 
         return false;
     });
+
+    isInitialized = true;
 }
 
 require(["popper"], function (p) {
@@ -872,36 +931,39 @@ require(["popper"], function (p) {
     require(["jquery"], function ($) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead", "git-connect"], function () {
 
-            document.addEventListener("IsConnectedToGithubEvent", function (e) {                
-                e.detail.withCredentials(function(username, user_info, access_token){
+            document.addEventListener("IsConnectedToGithubEvent", function (e) {
+                e.detail.withCredentials(function (username, user_info, access_token) {
+
                     authData.login = user_info;
                     authData.token = access_token;
-                    $("#connectLink").hide();
-                    $("#disconnectLink").click(function(){
+
+                    $("#disconnectLink").click(function () {
                         e.detail.disconnect();
                         return false;
                     });
                     $("#disconnectSpan").show();
                     $("#login").html(authData.login);
 
+                    refreshLockerBlock();
+
                 });
             });
 
             document.addEventListener("IsDisconnectedFromGithubEvent", function (e) {
-                $("#connectLink").show();
+
                 $("#disconnectSpan").hide();
-                $("#connectLink").click(function(){
-                    e.detail.connect();
-                });
+                
+                refreshLockerBlock();
+
             });
 
-            var connection = window.connection({
+            window.connection({
                 client_id: "8511d6cee6210c7b9420", //required; your application `client_id` in Github
                 proxy: "https://wow-git-proxy.herokuapp.com", //required; Base_URI to your git-proxy server
                 expires: 7,  //optional, default: 7; the number of days after coockies expire        
                 owner: 'vbncmx',  //application owner's github username
                 reponame: 'vbncmx.github.io', //application's repository name
-            });            
+            });
         });
     });
 });
