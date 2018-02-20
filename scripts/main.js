@@ -784,7 +784,10 @@ function refreshLockerBlock() {
                 request.setRequestHeader("Authorization", "token " + getAuthData().token);
             },
             url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
-            success: function (response) { // user is collaborator
+            success: function (collaboratorsResponse) { // user is collaborator
+
+                console.log("collaboratorsResponse:");
+                console.log(collaboratorsResponse);
 
                 $("#lockerBlock").hide();
                 
