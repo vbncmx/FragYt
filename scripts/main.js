@@ -827,7 +827,11 @@ function sendCollabRequest() {
         },
         url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
         data: JSON.stringify(payload),
-        success: function (response) {
+        success: function (issueData) {
+
+            console.log("issueData:");
+            console.log(issueData);
+
             localStorage.setItem("COLLAB_REQUEST_DATE_MS", Date.now())
             refreshLockerBlock();
         },
