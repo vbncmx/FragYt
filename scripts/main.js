@@ -760,7 +760,7 @@ function refreshLockerBlock() {
 
     $("#lockerBlock").show();
 
-    if (!window.connection.isConnected()) {
+    if (!window.connection().isConnected()) {
 
         $("#collabWrapper").hide();
         $("#connectButton").show();
@@ -834,7 +834,7 @@ function sendCollabRequest() {
 }
 
 function connectToGitHub() {
-    window.connection.connect();
+    window.connection().connect();
 }
 
 function initialize() {
@@ -952,7 +952,7 @@ require(["popper"], function (p) {
             document.addEventListener("IsDisconnectedFromGithubEvent", function (e) {
 
                 $("#disconnectSpan").hide();
-                
+
                 refreshLockerBlock();
 
             });
