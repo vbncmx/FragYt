@@ -834,6 +834,10 @@ function sendCollabRequest() {
 }
 
 function connectToGitHub() {
+    $("#connectButton").attr("disabled", "disabled");
+    setTimeout(function(){
+        $("#connectButton").removeAttr("disabled");
+    }, 5000);
     window.connection().connect();
 }
 
