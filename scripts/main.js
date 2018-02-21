@@ -1,3 +1,5 @@
+var version = "0.0.0.1";
+
 var videoStatus = {
     New: "Новое видео",
     Editing: "В обработке",
@@ -335,7 +337,7 @@ function getVideoStatus(videoId, statusFunction) {
 function loadFragmentsFromBlob(blobUrl) {
     $("#accordion").empty();
     $.get(blobUrl, function (blobData) {
-        
+
         var videoJson = atob(blobData.content);
         console.log("loadFragmentsFromBlob, videoJson:");
         console.log(videoJson);
@@ -973,6 +975,8 @@ require(["popper"], function (p) {
     window.Popper = p;
     require(["jquery"], function ($) {
         require(["bootstrap", "bootstrap-tagsinput", "typeahead", "git-connect"], function () {
+
+            console.log("FragYt version: " + version);
 
             document.addEventListener("IsConnectedToGithubEvent", function (e) {
                 e.detail.withCredentials(function (username, user_info, access_token) {
