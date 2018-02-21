@@ -293,10 +293,6 @@ function getVideoStatus(videoId, statusFunction) {
         url: branchUrl,
         success: function (branchData) {
             forPullRequests(videoId, function (prsData) {
-
-                console.log("prsData:");
-                console.log(prsData);
-
                 if (prsData === undefined) {
                     statusFunction(videoStatus.CouldNotLoad, branchData);
                 }
