@@ -803,14 +803,33 @@ function refreshLockerBlock() {
                 else { // collab request was sent
 
                     $("#collabButton").hide();
-                    $("#collabLabel").show();
-                    var message = '<a href="{url}" target="_blank">Запрос на присоединение</a> к репозиторию был отправлен {dt}.<br>Ожидайте сообщения на ваш почтовый адрес';
-                    var collabRequestDate = new Date(parseInt(collabRequestDateMs));
-                    message = message
-                        .replace("{dt}", collabRequestDate.toLocaleString())
-                        .replace("{url}", localStorage.getItem("COLLAB_REQUEST_ISSUE_URL"));
-                    $("#collabLabel").html(message);
+                    $("#collabLabel").hide();
 
+                    var issueUrl = localStorage.getItem("COLLAB_REQUEST_ISSUE_URL");
+                    $.get(issueUrl, function(issueData) {
+                        if (issueData.state === "closed") {
+                            if (issueData.comments > 0) {
+                                $.get(issueData.comments_url, function(comments) {
+                                    var message = "Ваш запрос на присоединение к репозиторию закрыт с комментариями:";
+                                    comments.forEach(function(c) {
+                                        var wrap = function(str) { return '<a target="_blank" href="' + str + '">' + str + '<\/a>'; };
+                                        var commentLine = "<br>" + c.user.login + ": " + c.body.replace(/\bhttp[^ ]+/ig, wrap);                                        
+                                        message += commentLine;
+                                    });
+                                    $("#collabLabel").html(message);
+                                    $("#collabLabel").show();
+                                });
+                            }
+                            else {
+                                $("#collabLabel").html("Ваш запрос на присоединение к репозиторию закрыт без комментариев");
+                                $("#collabLabel").show();
+                            }
+                        }
+                        else {
+                            $("#collabLabel").html("Ваш запрос на присоединение к репозиторию в рассмотрении");
+                            $("#collabLabel").show();
+                        }
+                    });
                 }
             }
         });
@@ -837,6 +856,11 @@ function sendCollabRequest() {
 
             localStorage.setItem("COLLAB_REQUEST_DATE_MS", Date.now());
             localStorage.setItem("COLLAB_REQUEST_ISSUE_URL", issueData.url);
+
+            $.get(issueData.url, function(issue){
+                console.log("issue:");
+                console.log(issue);
+            });
 
             refreshLockerBlock();
         },
