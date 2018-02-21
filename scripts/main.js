@@ -62,12 +62,12 @@ function getFragmentHtml(fragmentData) {
         .replace("{title}", getTitle(fragmentData.description));
 }
 
-function getFragment(card) {
+function getFragmentEncoded(card) {
     var fragment = {
         start: toSeconds(card.find(".start-input").val()),
         end: toSeconds(card.find(".end-input").val()),
-        description: card.find(".fragment-description").val(),
-        tags: card.find(".fragment-tags").val()
+        description: encodeURIComponent(card.find(".fragment-description").val()),
+        tags: encodeURIComponent(card.find(".fragment-tags").val())
     };
     return fragment;
 }
@@ -82,7 +82,7 @@ window.onYouTubeIframeAPIReady = function () {
     });
 };
 
-function getData() {
+function getDataEncoded() {
 
     if (currentVideoId === undefined || currentVideoId === null || currentVideoId.length < 1) {
         return undefined;
@@ -91,13 +91,13 @@ function getData() {
     fragments = [];
     $(".card").each(function (index) {
         var card = $(this);
-        var fragment = getFragment(card);
+        var fragment = getFragmentEncoded(card);
         fragments.push(fragment);
     });
 
     return {
         id: currentVideoId,
-        title: player.getVideoData().title,
+        title: encodeURIComponent(player.getVideoData().title),
         timestamp: Date.now(),
         version: "1.0.0.0",
         fragments: fragments
@@ -126,7 +126,7 @@ function nowHhmmss() {
 
 function saveChanges() {
 
-    var videoData = getData();
+    var videoData = getDataEncoded();
     var branchName = getBranchName(videoData.id);
     var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + branchName;
 
@@ -171,7 +171,7 @@ function commitChanges(headCommitUrl, videoData) {
     $.get(headCommitUrl, function (headCommit) {
 
         var payload = {
-            "content": encodeURIComponent(JSON.stringify(videoData)),
+            "content": JSON.stringify(videoData),
             "encoding": "utf-8"
         };
 
@@ -223,7 +223,7 @@ function commitChanges(headCommitUrl, videoData) {
                         data: JSON.stringify(newTreePayload),
                         success: function (newTree) {
                             var newCommitPayload = {
-                                "message": videoData.title,
+                                "message": decodeURIComponent(videoData.title),
                                 "parents": [headCommit.sha],
                                 "tree": newTree.sha
                             };
@@ -331,12 +331,25 @@ function getVideoStatus(videoId, statusFunction) {
     });
 }
 
+
 function loadFragmentsFromBlob(blobUrl) {
     $("#accordion").empty();
     $.get(blobUrl, function (blobData) {
-        var videoJson = decodeURIComponent(atob(blobData.content)).replace(/\+/g, " ");
+        
+        var videoJson = atob(blobData.content);
+        console.log("loadFragmentsFromBlob, videoJson:");
+        console.log(videoJson);
+
         var videoData = JSON.parse(videoJson);
+        console.log("loadFragmentsFromBlob, videoData:");
+        console.log(videoData);
+
+        videoData.title = decodeURIComponent(videoData.title).replace(/\+/g, " ");
         var fragments = videoData.fragments;
+        fragments.forEach(function(f) {
+            f.description = decodeURIComponent(f.description).replace(/\+/g, " ");
+            f.tags = decodeURIComponent(f.tags).replace(/\+/g, " ");
+        })
 
         fragments.sort(function (f1, f2) {
             return f1.start - f2.start;
@@ -924,7 +937,7 @@ function initialize() {
     $("#prButton").click(function () {
         var s = currentVideoStatus;
         if (s === videoStatus.Editing || s === videoStatus.Rejected || s === videoStatus.Accepted) {
-            var videoData = getData();
+            var videoData = getDataEncoded();
             if (videoData === undefined) {
                 return;
             }
