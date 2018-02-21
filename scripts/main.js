@@ -288,6 +288,10 @@ function getVideoStatus(videoId, statusFunction) {
         url: branchUrl,
         success: function (branchData) {
             forPullRequests(videoId, function (prsData) {
+
+                console.log("prsData:");
+                console.log(prsData);
+
                 if (prsData === undefined) {
                     statusFunction(videoStatus.CouldNotLoad, branchData);
                 }
@@ -850,18 +854,8 @@ function sendCollabRequest() {
         url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
         data: JSON.stringify(payload),
         success: function (issueData) {
-
-            console.log("issueData:");
-            console.log(issueData);
-
             localStorage.setItem("COLLAB_REQUEST_DATE_MS", Date.now());
             localStorage.setItem("COLLAB_REQUEST_ISSUE_URL", issueData.url);
-
-            $.get(issueData.url, function(issue){
-                console.log("issue:");
-                console.log(issue);
-            });
-
             refreshLockerBlock();
         },
         error: function (jqXHR, error, errorThrown) {
