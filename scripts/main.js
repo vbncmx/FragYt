@@ -272,7 +272,12 @@ function forPullRequests(videoId, prsFunction) {
             request.setRequestHeader("Authorization", "token " + getAuthData().token);
         },
         url: prsUrl,
-        success: prsFunction,
+        success: function(prsData){
+            prsData = prsData.filter(function(pr){
+                return pr.head.ref == branchName;
+            });
+            prsFunction(prsData);            
+        } ,
         error: function () {
             prsFunction(undefined);
         }
