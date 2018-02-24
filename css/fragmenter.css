@@ -8,11 +8,7 @@
     overflow: visible;
 }
 
-.collapse.show{
-    background-color: #6eb8f1;
-}
-
-.card-header{
+.fragment-editor{
     background-color: #c8e4fa;
 }
 
@@ -48,12 +44,6 @@ div.row > div {
     font-family: 'FontAwesome';
     position: relative;
     content: "\f107";
-}
-
-
-.fragment-row-collapsed {
-    background: rgb(67, 205, 247);
-    border-radius: 10px;
 }
 
 .start-input,
@@ -264,7 +254,7 @@ div.row > div {
 .fragmentMenuWrapper {
     max-height: 100%;
     height: 300px;
-    overflow: scroll;    
+    overflow: auto;    
 }
 
 .fragment-li-buttons {

@@ -1,5 +1,5 @@
-var version = "0.0.0.13";
-8
+var version = "0.0.0.14";
+
 var videoStatus = {
     New: "Новое видео",
     Editing: "В обработке",
@@ -587,11 +587,6 @@ function initializeFragmentEditor(fragmentData) {
         //     }
         // },
         freeInput: true
-    });
-
-    $(".fragment-delete", editor).click(function () {
-        stopYtTracker();
-        editor.remove();
     });
 
     $(".fragment-play", editor).click(function () {
