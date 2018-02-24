@@ -277,3 +277,7 @@ div.row > div {
 .fragmentEditorTd {
     vertical-align: top;
 }
+
+.badge {
+    margin-top: 2px;
+}

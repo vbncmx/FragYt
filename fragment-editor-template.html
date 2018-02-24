@@ -1,32 +1,26 @@
 <div class="fragment-editor">
-    <div class="collapse show" id="collapse{n}" role="tabpanel" aria-labelledby="heading{n}">
-        <div class="form-group start-end-control-panel">
-            <button class="btn modify-start btn-success btn-sm" type="button">-10</button>
-            <button class="btn modify-start btn-success btn-sm" type="button">-1</button>
-            <input step="1" class="form-control start-input" type="text" value="{start}">
-            <button class="btn modify-start btn-success btn-sm" type="button">+1</button>
-            <button class="btn modify-start btn-success btn-sm" type="button">+10</button>
-            <button class="btn fragment-adjust-end btn-primary btn-sm" type="button">
-                <i class="fa fa-angle-double-right"></i>
-            </button>
-            <button class="btn modify-end btn-success btn-sm" type="button">-10</button>
-            <button class="btn modify-end btn-success btn-sm" type="button">-1</button>
-            <input step="1" class="form-control end-input" type="text" value="{end}">
-            <button class="btn modify-end btn-success btn-sm" type="button">+1</button>
-            <button class="btn modify-end btn-success btn-sm" type="button">+10</button>
-            <button class="btn fragment-step btn-primary btn-sm" type="button">
-                <i class="fa fa-step-forward"></i>
-            </button>
-            <button class="btn fragment-step-track btn-primary btn-sm" type="button">
-                <i class="fa fa-clock-o"></i>
-                <i class="fa fa-step-forward"></i>
-            </button>
-        </div>
-        <div class="card-block">
-            <div class="form-group">
-                <input class="form-control fragment-description" placeholder="Опишите вопрос фрагмента" value="{description}">
-                <input class="form-control fragment-tags" placeholder="Ключевые слова (тэги)" value="{tags}">
-            </div>
-        </div>
+    <div>
+        <button class="btn modify-start btn-success btn-sm" type="button">-10</button>
+        <button class="btn modify-start btn-success btn-sm" type="button">-1</button>
+        <input step="1" class="form-control start-input" type="text" value="{start}">
+        <button class="btn modify-start btn-success btn-sm" type="button">+1</button>
+        <button class="btn modify-start btn-success btn-sm" type="button">+10</button>
+        <button class="btn fragment-step btn-primary btn-sm" type="button">
+            <i class="fa fa-step-forward"></i>
+        </button>
     </div>
+    <div>
+        <button class="btn modify-end btn-success btn-sm" type="button">-10</button>
+        <button class="btn modify-end btn-success btn-sm" type="button">-1</button>
+        <input step="1" class="form-control end-input" type="text" value="{end}">
+        <button class="btn modify-end btn-success btn-sm" type="button">+1</button>
+        <button class="btn modify-end btn-success btn-sm" type="button">+10</button>
+        <button class="btn fragment-step-track btn-primary btn-sm" type="button">
+            <i class="fa fa-clock-o"></i>
+            <i class="fa fa-step-forward"></i>
+        </button>
+    </div>
+    <input class="form-control fragment-description" placeholder="Опишите вопрос фрагмента" value="{description}">
+    <input class="form-control fragment-tags" placeholder="Ключевые слова (тэги)" value="{tags}">
+</div>
 </div>
