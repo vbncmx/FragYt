@@ -271,10 +271,10 @@ div.row > div {
     float: right;
 }
 
-.fragment-li-buttons i {
+.fragment-li-buttons a {
     color: #999999;
 }
 
-.fragment-li-buttons i :hover {
+.fragment-li-buttons a :hover {
     color: #000000;
 }

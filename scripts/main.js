@@ -1,4 +1,4 @@
-var version = "0.0.0.8";
+var version = "0.0.0.9";
 8
 var videoStatus = {
     New: "Новое видео",
@@ -554,7 +554,7 @@ function startYtTracker(timeInput, trackButton) {
 }
 
 
-var fragmentLiTemplate = '<li class="list-group-item fragment-li" id="fragment-li-{index}">{text}<table class="fragment-li-buttons"><tr><td><i class="fa fa-play"></i></td><td><i class="fa fa-times"></i></td></tr></table></i></li>';
+var fragmentLiTemplate = '<li class="list-group-item fragment-li" id="fragment-li-{index}">{text}<table class="fragment-li-buttons"><tr><td><a href="#" class="fragmentPlayLink"><i class="fa fa-play"></i></a></td><td><a href="#" class="fragmentRemoveLink"><i class="fa fa-times"></i></a></td></tr></table></i></li>';
 function addFragmentLiToMenu(fragmentData) {
 
     currentFragments.push(fragmentData);
