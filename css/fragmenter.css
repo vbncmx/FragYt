@@ -275,6 +275,6 @@ div.row > div {
     color: #999999;
 }
 
-.fragment-li-buttons i {
+.fragment-li-buttons i :hover {
     color: #000000;
 }
