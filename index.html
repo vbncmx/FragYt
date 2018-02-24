@@ -42,18 +42,34 @@
                     <div class="dropdown-menu live-search-list" aria-labelledby="dropdownMenuButton" id="videoList">
                     </div>
                 </div>
-
-
             </td>
         </tr>
         <tr>
             <td class="playerTd">
                 <div id="player" class="vidflex"></div>
             </td>
-            <td class="videoListTd">
-                <div class="logAreaBlock">
-                    <textarea id="logArea" disabled placeholder="Здесь отображаются логи ..."></textarea>
+            <td class="fragmentListTd">
+                <h2>Фрагменты:</h2>
+                <div class=fragmentMenuWrapper>
+                    <ul class="list-group" id="fragmentMenu">
+                        <li class="list-group-item active">Active item</li>
+                        <li class="list-group-item">Second item</li>
+                        <li class="list-group-item">Third item</li>
+                        <li class="list-group-item">Second item</li>
+                        <li class="list-group-item">Third item</li>
+                        <li class="list-group-item">Second item</li>
+                        <li class="list-group-item">Third item</li>
+                        <li class="list-group-item">Second item</li>
+                        <li class="list-group-item">Third item</li>
+                        <li class="list-group-item">Second item</li>
+                        <li class="list-group-item">Third item</li>
+                        <li class="list-group-item">Second item</li>
+                        <li class="list-group-item">Third item</li>
+                    </ul>
                 </div>
+            </td>
+            <td class="fragmentEditorTd">
+
             </td>
         </tr>
     </table>
@@ -85,6 +101,10 @@
         </div>
     </div>
 
+    <div class="logAreaBlock">
+        <textarea id="logArea" disabled placeholder="Здесь отображаются логи ..."></textarea>
+    </div>
+
     <div id="authBlock">
         <span id="disconnectSpan" style="display: none">Вы вошли как
             <strong id="login"></strong> |
@@ -92,11 +112,11 @@
         </span>
     </div>
 
-    <div id="lockerBlock"  style="display: block">
+    <div id="lockerBlock" style="display: block">
         <button id="connectButton" class="btn-lg btn-primary" onclick="connectToGitHub()" style="display: none">
             <i class="fa fa-github"></i>
             Войти через GitHub</button>
-        <div id="collabWrapper"  style="display: none">
+        <div id="collabWrapper" style="display: none">
             <label id="collabLabel">Необходимо отправить запрос на присоединение к репозиторию</label>
             <br>
             <button id="collabButton" class="btn-lg btn-primary" onclick="sendCollabRequest()">

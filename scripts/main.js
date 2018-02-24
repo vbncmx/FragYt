@@ -1,4 +1,4 @@
-var version = "0.0.0.2";
+var version = "0.0.0.3";
 
 var videoStatus = {
     New: "Новое видео",
@@ -74,6 +74,7 @@ function getFragmentEncoded(card) {
 
 var player;
 var currentVideoId;
+var currentFragments;
 window.onYouTubeIframeAPIReady = function () {
     player = new YT.Player('player', {
         height: '300',
@@ -365,6 +366,9 @@ function loadFragmentsFromBlob(blobUrl) {
 
 function loadVideoData(commitUrl, videoId) {
 
+    $("#fragmentMenu").empty();
+    currentFragments = [];
+
     $.get(commitUrl, function (commitData) {
         var blobUrl;
         if (commitData.tree !== undefined) {
@@ -553,6 +557,24 @@ function startYtTracker(timeInput, trackButton) {
     currentTimeInput.css("font-weight", "bold");
     currentTrackButton.removeClass("btn-primary");
     currentTrackButton.addClass("btn-warning");
+}
+
+
+var fragmentLiTemplate = '<li class="list-group-item fragment-li" id="fragment-li-{index}">{text}<i class="fa fa-times"></i></li>';
+function addFragmentLiToMenu(fragmentData) {
+
+    currentFragments.push(fragmentData);
+
+    var fragmentLiHtml = fragmentLiTemplate
+        .replace("{text}", getTitle(fragmentData.description))
+        .replace("{index}", currentFragments.indexOf(fragmentData));
+    var fragmentLi = $(fragmentLiHtml).hide().prependTo("#fragmentMenu").fadeIn(500);
+    
+    fragmentLi.click(function(){
+        $(".fragmentLi").removeClass("active");
+        fragmentLi.addClass("active");
+    });
+
 }
 
 function addFragmentRowToDom(fragmentData) {

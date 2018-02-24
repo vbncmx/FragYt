@@ -167,11 +167,6 @@ div.row > div {
     font-size: 1.25em;
 }
 
-.videoListTd h2{
-    display: inline;
-    margin-right: 100px;
-}
-
 #videoList{
     padding: 0;    
 }
@@ -251,4 +246,22 @@ div.row > div {
 
 #collabWrapper{
     text-align: center;
+}
+
+#fragmentMenu {
+    width: 400px;
+}
+
+#fragmentMenu li {
+    padding: 6px 10px 6px 10px;
+}
+
+.fragmentListTd h2 {
+    font-size: 1em;
+}
+
+.fragmentMenuWrapper {
+    max-height: 100%;
+    height: 300px;
+    overflow: scroll;    
 }
