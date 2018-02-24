@@ -1,4 +1,4 @@
-var version = "0.0.0.4";
+var version = "0.0.0.5";
 
 var videoStatus = {
     New: "Новое видео",
@@ -565,7 +565,7 @@ function addFragmentLiToMenu(fragmentData) {
     var fragmentLi = $(fragmentLiHtml).hide().prependTo("#fragmentMenu").fadeIn(500);
     
     fragmentLi.click(function(){
-        $(".fragmentLi").removeClass("active");
+        $(".fragment-li").removeClass("active");
         fragmentLi.addClass("active");
     });
 

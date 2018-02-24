@@ -254,6 +254,7 @@ div.row > div {
 
 #fragmentMenu li {
     padding: 6px 10px 6px 10px;
+    cursor: pointer;
 }
 
 .fragmentListTd h2 {
@@ -264,4 +265,14 @@ div.row > div {
     max-height: 100%;
     height: 300px;
     overflow: scroll;    
+}
+
+.fragment-li i.fa-times {
+    float: right;
+    color: #FFFFFF;
+}
+
+.fragment-li i.fa-times :hover {
+    float: right;
+    color: #FF0000;
 }
