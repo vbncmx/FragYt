@@ -272,9 +272,13 @@ div.row > div {
 }
 
 .fragment-li-buttons a {
-    color: #999999;
+    color: #AAA;
 }
 
 .fragment-li-buttons a :hover {
-    color: #000000;
+    color: #000;
+}
+
+.fragmentLiTextTd {
+    width: 100%;
 }

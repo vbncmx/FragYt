@@ -1,4 +1,4 @@
-var version = "0.0.0.9";
+var version = "0.0.0.10";
 8
 var videoStatus = {
     New: "Новое видео",
