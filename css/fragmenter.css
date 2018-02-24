@@ -273,3 +273,7 @@ div.row > div {
     width: 100%;
     padding-left: 10px;
 }
+
+.fragmentEditorTd {
+    vertical-align: top;
+}
