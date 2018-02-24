@@ -1,4 +1,4 @@
-var version = "0.0.0.5";
+var version = "0.0.0.6";
 
 var videoStatus = {
     New: "Новое видео",
@@ -559,9 +559,11 @@ function addFragmentLiToMenu(fragmentData) {
 
     currentFragments.push(fragmentData);
 
+    var fragmentIndex = currentFragments.indexOf(fragmentData);
+
     var fragmentLiHtml = fragmentLiTemplate
         .replace("{text}", getTitle(fragmentData.description))
-        .replace("{index}", currentFragments.indexOf(fragmentData));
+        .replace("{index}", fragmentIndex);
     var fragmentLi = $(fragmentLiHtml).hide().prependTo("#fragmentMenu").fadeIn(500);
     
     fragmentLi.click(function(){

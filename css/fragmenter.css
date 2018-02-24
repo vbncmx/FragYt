@@ -267,12 +267,14 @@ div.row > div {
     overflow: scroll;    
 }
 
-.fragment-li i.fa-times {
+.fragment-li-buttons {
     float: right;
-    color: #FFFFFF;
 }
 
-.fragment-li i.fa-times :hover {
-    float: right;
-    color: #FF0000;
+.fragment-li-buttons i {
+    color: #999999;
+}
+
+.fragment-li-buttons i {
+    color: #000000;
 }
