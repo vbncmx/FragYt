@@ -336,15 +336,8 @@ function getVideoStatus(videoId, statusFunction) {
 function loadFragmentsFromBlob(blobUrl) {
     $("#accordion").empty();
     $.get(blobUrl, function (blobData) {
-
         var videoJson = atob(blobData.content);
-        console.log("loadFragmentsFromBlob, videoJson:");
-        console.log(videoJson);
-
         var videoData = JSON.parse(videoJson);
-        console.log("loadFragmentsFromBlob, videoData:");
-        console.log(videoData);
-
         videoData.title = decodeURIComponent(videoData.title).replace(/\+/g, " ");
         var fragments = videoData.fragments;
         fragments.forEach(function(f) {
@@ -356,7 +349,8 @@ function loadFragmentsFromBlob(blobUrl) {
             return f1.start - f2.start;
         });
         videoData.fragments.forEach((function (f) {
-            addFragmentRowToDom(f);
+            addFragmentLiToMenu(f);
+            // addFragmentRowToDom(f);
         }));
         if (videoData.timestamp !== undefined) {
             log("Загружено \"" + videoData.title + "\" от " + new Date(videoData.timestamp).toLocaleString());
