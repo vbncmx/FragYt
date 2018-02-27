@@ -73,11 +73,11 @@
     width: 100%;
 }
 
-.start-input,
-.end-input {
+.start-input, .end-input {
     padding: 2px 4px 2px 4px;
     width: 80px;
     display: inline;
+    margin-right: 1px;
     /* font-size: 0.75em; */
 }
 
@@ -288,3 +288,9 @@ h2 {
     margin-left: 10px;
     margin-right: 5px;
 }
+
+.fragment-editor button {
+    margin-bottom: 4px;
+}
+
+
