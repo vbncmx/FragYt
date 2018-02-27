@@ -15,99 +15,93 @@
 </head>
 
 <body>
-    <table>
-        <tr>
-            <td colspan="2">
-                <div class="dropdown turtorial-dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Обучающие видео
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu tutorial-menu">
-                        <li>
-                            <a href="https://youtu.be/a02t_qafEFo" class="tutorial-link">Как зарегистрироваться?</a>
-                        </li>
-                        <li>
-                            <a href="#">Как добавить видео?</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <button id="addVideoBtn" class="btn btn btn-primary">
-                    <i class="fa fa-plus"></i>
-                </button>
-
-                <div class="dropdown nav-item my-video-search-block">
-                    <input class="dropdown-toggle form-control live-search-box" id="myVideoSearch" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false" placeholder="Ваши видео" style="width: 200px;">
-                    <div class="dropdown-menu live-search-list" aria-labelledby="dropdownMenuButton" id="videoList">
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="playerTd">
-                <div id="player" class="vidflex"></div>
-            </td>
-            <td class="fragmentListTd">
-                <h2>Фрагменты:</h2>
-                <div class=fragmentMenuWrapper>
-                    <ul class="list-group" id="fragmentMenu"> </ul>
-                </div>
-            </td>
-            <td class="fragmentEditorTd">
-
-            </td>
-        </tr>
-    </table>
-
-    <div id="fragmenterBlock">
-
-        <div id="fragmenter-panel">
-
-            <div id="add-save-fragment-block">
-                <button id="addFragmentButton" class="btn btn-primary">
-                    Добавить фрагмент
-                </button>
-                <button id="saveButton" class="btn btn-primary">
-                    <i class="fa fa-save"></i>
-                </button>
-                <div class="dropdown commit-dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">История обработки
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" id="commitsMenu">
-
-                    </ul>
-                </div>
-                <button id="prButton" class="btn btn-primary">
-                    Отправить на рассмотрение
-                </button>
-            </div>
-            <div id="accordion" role="tablist" aria-multiselectable="true"></div>
-        </div>
-    </div>
-
-    <div class="logAreaBlock">
-        <textarea id="logArea" disabled placeholder="Здесь отображаются логи ..."></textarea>
-    </div>
-
-    <div id="authBlock">
-        <span id="disconnectSpan" style="display: none">Вы вошли как
-            <strong id="login"></strong> |
-            <a href="#" id="disconnectLink">Выйти</a>
-        </span>
-    </div>
-
-    <div id="lockerBlock" style="display: block">
-        <button id="connectButton" class="btn-lg btn-primary" onclick="connectToGitHub()" style="display: none">
-            <i class="fa fa-github"></i>
-            Войти через GitHub</button>
-        <div id="collabWrapper" style="display: none">
-            <label id="collabLabel">Необходимо отправить запрос на присоединение к репозиторию</label>
+    <a id="sidebarToggle" href="#" onclick="return toggleSidebar()">
+        в
+        <br>и
+        <br>д
+        <br>е
+        <br>о
+    </a>
+    <div class="wrapper">
+        <nav id="sidebar">
+            <strong>Обучающие видео:</strong>
+            <hr>
+            <a href="https://youtu.be/a02t_qafEFo" class="tutorial-link">Как зарегистрироваться?</a>
+            <a href="#">Как добавить видео?</a>
             <br>
-            <button id="collabButton" class="btn-lg btn-primary" onclick="sendCollabRequest()">
-                <i class="fa fa-send"></i>
-                Отправить запрос</button>
+            <strong>Ваши видео:</strong>
+            <button id="addVideoBtn" class="btn btn-xs btn-success fa fa-plus btn-sq"> </button>
+            <hr>
+            <div id="videoList">
+            </div>
+        </nav>
+        <div id="content">
+
+            <table>
+                <tr>
+                    <td class="playerTd" rowspan="2">
+                        <div id="player" class="vidflex"></div>
+                    </td>
+                    <td id="fragmentsHeaderTd">
+                        <strong style="margin-right: 15px">Фрагменты:</strong>
+                        <button id="addFragmentButton" class="btn btn-xs btn-primary fa fa-plus btn-sq"></button>
+                        <button id="saveButton" class="btn btn-xs btn-primary fa fa-save btn-sq"></button>
+                        <div class="dropdown commit-dropdown">
+                            <button class="btn btn-primary dropdown-toggle fa fa-history btn-sq" type="button" data-toggle="dropdown"></button>
+                            <ul class="dropdown-menu" id="commitsMenu"></ul>
+                        </div>
+                        <button id="prButton" class="btn btn-xs btn-primary fa fa-paper-plane btn-sq"></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fragmentListTd">
+                        <div class="fragmentMenuWrapper">
+                            <ul class="list-group" id="fragmentMenu"> </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fragmentEditorTd" colspan="2"></td>
+                </tr>
+            </table>
+
+            <div id="fragmenterBlock">
+
+                <div id="fragmenter-panel">
+
+                    <div id="add-save-fragment-block">
+
+
+
+
+                    </div>
+                    <div id="accordion" role="tablist" aria-multiselectable="true"></div>
+                </div>
+            </div>
+
+            <div class="logAreaBlock">
+                <textarea id="logArea" disabled placeholder="Здесь отображаются логи ..."></textarea>
+            </div>
+
+            <div id="authBlock">
+                <span id="disconnectSpan" style="display: none">Вы вошли как
+                    <strong id="login"></strong> |
+                    <a href="#" id="disconnectLink">Выйти</a>
+                </span>
+            </div>
+
+            <div id="lockerBlock" style="display: block">
+                <button id="connectButton" class="btn-lg btn-primary" onclick="connectToGitHub()" style="display: none">
+                    <i class="fa fa-github"></i>
+                    Войти через GitHub</button>
+                <div id="collabWrapper" style="display: none">
+                    <label id="collabLabel">Необходимо отправить запрос на присоединение к репозиторию</label>
+                    <br>
+                    <button id="collabButton" class="btn-lg btn-primary" onclick="sendCollabRequest()">
+                        <i class="fa fa-send"></i>
+                        Отправить запрос</button>
+                </div>
+            </div>
         </div>
     </div>
 

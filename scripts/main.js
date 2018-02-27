@@ -35,7 +35,7 @@ var options = {
 
 requirejs.config(options);
 
-var fragmentEditorTemplate = '<div class="fragment-editor"><div><button class="btn btn-sm btn-success modify-start"type="button">-10</button> <button class="btn btn-sm btn-success modify-start"type="button">-1</button> <input class="form-control start-input"value="{start}"step="1"type="text"> <button class="btn btn-sm btn-success modify-start"type="button">+1</button> <button class="btn btn-sm btn-success modify-start"type="button">+10</button> <button class="btn btn-sm btn-primary fragment-step"type="button"><i class="fa fa-step-forward"></i></button></div><div><button class="btn btn-sm btn-success modify-end"type="button">-10</button> <button class="btn btn-sm btn-success modify-end"type="button">-1</button> <input class="form-control end-input"value="{end}"step="1"type="text"> <button class="btn btn-sm btn-success modify-end"type="button">+1</button> <button class="btn btn-sm btn-success modify-end"type="button">+10</button> <button class="btn btn-sm btn-primary fragment-step-track"type="button"><i class="fa fa-clock-o"></i> <i class="fa fa-step-forward"></i></button></div><input class="form-control fragment-description"value="{description}"placeholder="Опишите вопрос фрагмента"> <input class="form-control fragment-tags"value="{tags}"placeholder="Ключевые слова (тэги)"></div>';
+var fragmentEditorTemplate = '<div class="fragment-editor"><div><strong>Начало:</strong> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">-10</button> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">-1</button> <input class="form-control start-input"value="{start}"step="1"type="text"> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">+1</button> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">+10</button> <strong>Конец:</strong> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">-10</button> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">-1</button> <input class="form-control end-input"value="{end}"step="1"type="text"> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">+1</button> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">+10</button> <button class="btn btn-sq btn-xs btn-primary fragment-step-track"type="button"><i class="fa fa-clock-o"></i> <i class="fa fa-step-forward"></i></button> <button class="btn btn-sq btn-xs btn-primary fragment-step"type="button"><i class="fa fa-step-forward"></i></button></div><input class="form-control fragment-description"value="{description}"placeholder="Опишите вопрос фрагмента"> <input class="form-control fragment-tags"value="{tags}"placeholder="Ключевые слова (тэги)"></div>';
 var lastFragmentId = 0;
 function getFragmentEditorHtml(fragmentData) {
     lastFragmentId++;
@@ -59,7 +59,7 @@ function getFragmentEditorHtml(fragmentData) {
         .replace("{start}", toHhmmss(fragmentData.start))
         .replace("{end}", toHhmmss(fragmentData.end))
         .replace("{tags}", fragmentData.tags)
-        .replace("{title}", getTitle(fragmentData.description));
+        .replace("{title}", short(fragmentData.description));
 }
 
 function getFragmentEncoded(card) {
@@ -384,7 +384,7 @@ function loadVideoData(commitUrl, videoId) {
 }
 
 
-var videoLiTemplate = '<li data-search-term="{data-search-term}" class="videoLi"><a href="#" onclick="return loadVideo(\'{videoId}\')">{text}</a></li>';
+var videoLiTemplate = '<a href="#" onclick="return loadVideo(\'{videoId}\')">{text}</a>';
 function refreshVideoList() {
     $("#videoList").empty();
     $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs", function (refsData) {
@@ -398,11 +398,10 @@ function refreshVideoList() {
             var videoId = r.ref.substring(videoIdIndex);
 
             $.get(r.object.url, function (headCommitData) {
-                var text = headCommitData.message + " (" + videoId + ")";
+                var text = short(headCommitData.message, 40) + " (" + videoId + ")";
                 var videoLiHtml = videoLiTemplate
                     .replace("{videoId}", videoId)
-                    .replace("{text}", text)
-                    .replace("{data-search-term}", text.toLowerCase());
+                    .replace("{text}", text);
                 $("#videoList").append(videoLiHtml);
             });
 
@@ -456,6 +455,8 @@ function stopPrButtonInterval() {
 
 var commitLiTemplate = '<li class="commitLi"><a href="#" onclick="return loadVideoData(\'{commitUrl}\', \'{videoId}\')">{text}</a></li>';
 function loadVideo(videoId) {
+
+    toggleSidebar();
 
     stopPrButtonInterval();
     $("#accordion").empty();
@@ -562,7 +563,7 @@ function addFragmentLiToMenu(fragmentData) {
     var fragmentIndex = currentFragments.indexOf(fragmentData);
 
     var fragmentLiHtml = fragmentLiTemplate
-        .replace("{text}", getTitle(fragmentData.description))
+        .replace("{text}", short(fragmentData.description))
         .replace("{index}", fragmentIndex);
     var fragmentLi = $(fragmentLiHtml).hide().prependTo("#fragmentMenu").fadeIn(500);
     
@@ -650,20 +651,20 @@ function initializeFragmentEditor(fragmentData) {
     var titleSpan = $(".fragment-title", editor);
     var descriptionInput = $(".fragment-description", editor);
     descriptionInput.change(function () {
-        var title = getTitle(descriptionInput.val());
+        var title = short(descriptionInput.val());
         titleSpan.text(title);
     });
     $(".fragment-description", editor).focus();
 }
 
-function getTitle(description) {
-    var title = description;
+function short(text, nSymbols = 35) {
+    var short = text;
 
-    if (title.length > 35) {
-        title = title.substring(0, 31) + " ...";
+    if (short.length > nSymbols) {
+        short = short.substring(0, nSymbols - 4) + " ...";
     }
 
-    return title;
+    return short;
 }
 
 function isAuthDataValid() {
@@ -1027,3 +1028,24 @@ require(["popper"], function (p) {
         });
     });
 });
+
+function toggleSidebar(){
+
+    var sidebar = $("#sidebar");
+
+    var marginLeft = parseInt(sidebar.css("margin-left").replace("px", ""));
+    console.log(marginLeft);
+    if (marginLeft === 0) {
+        sidebar.animate({
+            marginLeft: "-500px"
+        }, 1000);
+    }
+    else {
+        sidebar.css("margin-left", "-500px");
+        sidebar.animate({
+            marginLeft: "0px"
+        }, 1000);
+    }
+
+    return false;
+}

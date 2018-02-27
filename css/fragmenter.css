@@ -1,49 +1,76 @@
-.fragment-description {
-    margin-bottom: 5px;
+/* == <COMMON> == */
+
+.btn-sq {
+    padding: 4px;
+    font-size: 14px;
 }
 
-.card-block .form-group {
-    width: 95%;
-    margin: 5px;
-    overflow: visible;
+/* == </COMMON> == */
+
+/* == <SIDEBAR> == */
+
+.wrapper {
+    display: flex;
+}
+
+#sidebar {
+    min-width: 500px;
+    max-width: 500px;
+    height: 100vh;
+    padding: 5px 30px 5px 30px;
+    overflow: hidden;
+}
+
+#sidebar hr {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+#sidebarToggle {
+    position: fixed;
+    top: 1px;
+    left: 1px;
+    background-color: #faf9ae79;
+    padding: 5px;
+    line-height: 1em;
+    border-bottom-right-radius: 5px;
+    z-index: 998;
+    color: black;
+    text-decoration: none;
+}
+
+#sidebarToggle {
+    color: black;
+    text-decoration: none;
+}
+
+#sidebarToggle :hover {
+    background-color: #bfddf5;
+    cursor: pointer;
+}
+
+#addVideoBtn {
+    margin-right: 10px;
+}
+
+#sidebar a {
+    display: block;
+    width: 1000px;
+}
+
+/* == </SIDEBAR> == */
+
+.fragment-description{
+    margin: 10px 0 10px 0;
 }
 
 .fragment-editor{
     background-color: #c8e4fa;
-}
-
-div.row > div {
-    padding: 5px;
+    padding: 10px;
 }
 
 .bootstrap-tagsinput {
     width: 100%;
-}
-
-.row button {
-    width: 100%;
-}
-
-.container {
-    margin: 5px;
-}
-
-.fragment-collapse-btn,
-.fragment-collapse-btn:hover {
-    margin-right: 10px;
-    text-decoration: none;
-}
-
-.fragment-collapse-btn[aria-expanded="true"]::before {
-    font-family: 'FontAwesome';
-    position: relative;
-    content: "\f106";
-}
-
-.fragment-collapse-btn[aria-expanded="false"]::before {
-    font-family: 'FontAwesome';
-    position: relative;
-    content: "\f107";
 }
 
 .start-input,
@@ -51,7 +78,7 @@ div.row > div {
     padding: 2px 4px 2px 4px;
     width: 80px;
     display: inline;
-    font-size: 0.75em;
+    /* font-size: 0.75em; */
 }
 
 .fragment-title{
@@ -96,22 +123,14 @@ div.row > div {
     width: 100%;
 }
 
-.card-header{
-    padding: 6px 10px 6px 10px;
-}
-
-#fragmenter-panel{
-    /* display: none;     */
-}
-
 #add-save-fragment-block{
     margin-bottom: 5px;
 }
 
 .vidflex{
     margin: 0 auto;
-    width: 480px;
-    height: 300px;
+    width: 600px;
+    height: 375px;
     background-color: black;
 }
 
@@ -157,22 +176,8 @@ div.row > div {
     font-size: 1.25em;
 }
 
-#videoList{
-    padding: 0;    
-}
-
 .videoLi{
     list-style: none;
-}
-
-#addVideoBtn{
-    width: 40px;
-    float: left;
-    margin-left: 2px;
-}
-
-#addVideoBtn i{
-    margin-right: 5px;
 }
 
 #profileBtn{
@@ -181,18 +186,9 @@ div.row > div {
     right: 1px;
 }
 
-.my-video-search-block{
-    margin-left: 247px;
-    width: 400px;
-}
-
 .logAreaBlock{
     width: 100%;
     height: 100%;
-}
-
-#prButton{
-    width: 250px;
 }
 
 .authHint{
@@ -245,15 +241,21 @@ div.row > div {
 #fragmentMenu li {
     padding: 6px 10px 6px 10px;
     cursor: pointer;
+    background-color: #e4eff8;
 }
 
-.fragmentListTd h2 {
+#fragmentMenu li.active {
+    background-color: #007baa;
+    border-color: #007baa;
+}
+
+h2 {
     font-size: 1em;
 }
 
 .fragmentMenuWrapper {
     max-height: 100%;
-    height: 300px;
+    height: 343px;
     overflow: auto;    
 }
 
@@ -280,4 +282,9 @@ div.row > div {
 
 .badge {
     margin-top: 2px;
+}
+
+.fragment-editor strong {
+    margin-left: 10px;
+    margin-right: 5px;
 }
