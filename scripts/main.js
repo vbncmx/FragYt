@@ -1,4 +1,7 @@
-var version = "0.0.0.19";
+var version = "0.0.0.20";
+
+var baseUrl = "https://api.github.com/repos/vbncmx/ktvfaq/";
+
 
 var videoStatus = {
     New: "Новое видео",
@@ -133,7 +136,7 @@ function saveChanges() {
     var videoData = getDataEncoded();
 
     var branchName = getBranchName(videoData.id);
-    var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + branchName;
+    var videoBranchUrl = baseUrl + "git/refs/heads/" + branchName;
 
     $.ajax({
         type: "GET",
@@ -142,7 +145,7 @@ function saveChanges() {
             commitChanges(branchData.object.url, videoData);
         },
         error: function () { // there is no branch yet, create it first
-            $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/master", function (masterBranchData) {
+            $.get(baseUrl + "git/refs/heads/master", function (masterBranchData) {
                 var videoBranchPayload = {
                     ref: "refs/heads/" + branchName,
                     sha: masterBranchData.object.sha
@@ -152,7 +155,7 @@ function saveChanges() {
                     beforeSend: function (request) {
                         request.setRequestHeader("Authorization", "token " + getAuthData().token);
                     },
-                    url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs",
+                    url: baseUrl + "git/refs",
                     data: JSON.stringify(videoBranchPayload),
                     success: function (branchData) {
                         commitChanges(branchData.object.url, videoData);
@@ -185,7 +188,7 @@ function commitChanges(headCommitUrl, videoData) {
             beforeSend: function (request) {
                 request.setRequestHeader("Authorization", "token " + getAuthData().token);
             },
-            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/blobs",
+            url: baseUrl + "git/blobs",
             data: JSON.stringify(payload),
             success: function (blobData) {
                 var treeUrl = headCommit.tree.url + "?recursive=1";
@@ -224,7 +227,7 @@ function commitChanges(headCommitUrl, videoData) {
                         beforeSend: function (request) {
                             request.setRequestHeader("Authorization", "token " + getAuthData().token);
                         },
-                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/trees",
+                        url: baseUrl + "git/trees",
                         data: JSON.stringify(newTreePayload),
                         success: function (newTree) {
                             var newCommitPayload = {
@@ -237,7 +240,7 @@ function commitChanges(headCommitUrl, videoData) {
                                 beforeSend: function (request) {
                                     request.setRequestHeader("Authorization", "token " + getAuthData().token);
                                 },
-                                url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/commits",
+                                url: baseUrl + "git/commits",
                                 data: JSON.stringify(newCommitPayload),
                                 success: function (newCommit) {
                                     var updateRefsPayload = {
@@ -250,7 +253,7 @@ function commitChanges(headCommitUrl, videoData) {
                                         beforeSend: function (request) {
                                             request.setRequestHeader("Authorization", "token " + getAuthData().token);
                                         },
-                                        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + getBranchName(videoData.id),
+                                        url: baseUrl + "git/refs/heads/" + getBranchName(videoData.id),
                                         data: JSON.stringify(updateRefsPayload),
                                         success: function (result) {
                                             log("Сохранено в " + nowHhmmss());
@@ -270,7 +273,7 @@ function commitChanges(headCommitUrl, videoData) {
 
 function forPullRequests(videoId, prsFunction) {
     var branchName = getBranchName(videoId);
-    var prsUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/pulls?state=all&sort=created&direction=desc&head=" + branchName;
+    var prsUrl = baseUrl + "pulls?state=all&sort=created&direction=desc&head=" + branchName;
     $.ajax({
         type: "GET",
         beforeSend: function (request) {
@@ -292,7 +295,7 @@ function forPullRequests(videoId, prsFunction) {
 function getVideoStatus(videoId, statusFunction) {
 
     var branchName = getBranchName(videoId);
-    var branchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + branchName;
+    var branchUrl = baseUrl + "git/refs/heads/" + branchName;
     $.ajax({
         type: "GET",
         url: branchUrl,
@@ -396,7 +399,7 @@ function loadVideoData(commitUrl, videoId) {
 var videoLiTemplate = '<a href="#" onclick="return loadVideo(\'{videoId}\')">{text}</a>';
 function refreshVideoList() {
     $("#videoList").empty();
-    $.get("https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs", function (refsData) {
+    $.get(baseUrl + "git/refs", function (refsData) {
 
         var branchPrefix = getBranchPrefix();
         refsData.forEach(function (r) {
@@ -493,7 +496,7 @@ function loadVideo(videoId) {
         log(statusLog);
 
         var branchName = getBranchName(currentVideoId);
-        var commitsUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/commits?sha=" + branchName + "&path=data/" + videoId + ".json";
+        var commitsUrl = baseUrl + "commits?sha=" + branchName + "&path=data/" + videoId + ".json";
         $.get(commitsUrl, function (commits) {
             commits.forEach(function (c) {
                 var commitUrl = c.url;
@@ -725,7 +728,7 @@ function closePullRequest(videoId) {
                 beforeSend: function (request) {
                     request.setRequestHeader("Authorization", "token " + getAuthData().token);
                 },
-                url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/pulls/" + pr.number,
+                url: baseUrl + "pulls/" + pr.number,
                 data: JSON.stringify(payload),
                 success: function (prData) {
                     currentVideoStatus = videoStatus.Rejected;
@@ -763,7 +766,7 @@ function submitPullRequest(videoData) {
         beforeSend: function (request) {
             request.setRequestHeader("Authorization", "token " + getAuthData().token);
         },
-        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/pulls",
+        url: baseUrl + "pulls",
         data: JSON.stringify(payload),
         success: function (prData) {
             log("Видео отправлено на рассмотрение");
@@ -830,7 +833,7 @@ function refreshLockerBlock() {
             beforeSend: function (request) {
                 request.setRequestHeader("Authorization", "token " + getAuthData().token);
             },
-            url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/collaborators/" + getAuthData().login,
+            url: baseUrl + "collaborators/" + getAuthData().login,
             success: function (collaboratorsResponse) { // user is collaborator
 
                 $("#lockerBlock").hide();
@@ -895,7 +898,7 @@ function sendCollabRequest() {
         beforeSend: function (request) {
             request.setRequestHeader("Authorization", "token " + getAuthData().token);
         },
-        url: "https://api.github.com/repos/vbncmx/vbncmx.github.io/issues",
+        url: baseUrl + "issues",
         data: JSON.stringify(payload),
         success: function (issueData) {
             localStorage.setItem("COLLAB_REQUEST_DATE_MS", Date.now());
