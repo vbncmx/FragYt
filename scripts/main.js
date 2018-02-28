@@ -32,7 +32,8 @@ var options = {
         "bootstrap-tagsinput": "bootstrap-tagsinput.min",
         "typeahead": "typeahead.bundle",
         "youtube": "https://www.youtube.com/iframe_api?noext",
-        "git-connect": "git-connect"
+        "git-connect": "git-connect",
+        "tags": "tags"
     }
 };
 
@@ -594,11 +595,14 @@ function initializeFragmentEditor(fragmentData, fragmentLi) {
     var editor = $(editorHtml).hide().prependTo(".fragmentEditorTd").fadeIn(500);
     var tagsInput = $(".fragment-tags", editor);
     tagsInput.tagsinput({
-        // typeaheadjs: {
-        //     source: function (query, cb) {
-        //         cb(['Amsterdam', 'Washington', 'Sydney', 'Beijing', 'Cairo']);
-        //     }
-        // },
+        typeaheadjs: {
+            source: function (query, cb) {
+                var filtered = tags.filter(function(t){
+                    return t.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+                });
+                cb(filtered);
+            }
+        },
         freeInput: true
     });    
 
@@ -1013,7 +1017,7 @@ function initialize() {
 require(["popper"], function (p) {
     window.Popper = p;
     require(["jquery"], function ($) {
-        require(["bootstrap", "bootstrap-tagsinput", "typeahead", "git-connect"], function () {
+        require(["bootstrap", "bootstrap-tagsinput", "typeahead", "git-connect", "tags"], function () {
 
             console.log("FragYt version: " + version);
 
