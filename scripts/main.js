@@ -35,7 +35,7 @@ var options = {
 
 requirejs.config(options);
 
-var fragmentEditorTemplate = '<div class="fragment-editor"><div class="input-group-xs"><strong>Начало:</strong> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">-10</button> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">-1</button> <input class="form-control start-input"value="{start}"step="1"type="text"> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">+1</button> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">+10</button> <strong>Конец:</strong> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">-10</button> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">-1</button> <input class="form-control end-input"value="{end}"step="1"type="text"> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">+1</button> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">+10</button> <button class="btn btn-sq btn-xs btn-primary fragment-step-track"type="button"><i class="fa fa-clock-o"></i> <i class="fa fa-step-forward"></i></button> <button class="btn btn-sq btn-xs btn-primary fragment-step"type="button"><i class="fa fa-step-forward"></i></button></div><input class="form-control fragment-description"value="{description}"placeholder="Опишите вопрос фрагмента"> <input class="form-control fragment-tags"value="{tags}"placeholder="Ключевые слова (тэги)"></div>';
+var fragmentEditorTemplate = '<div class="fragment-editor"><div class="input-group-xs"><button class="btn btn-sq btn-primary fa fa-arrow-down adjust-start"></button> <button class="btn btn-sq btn-primary fa fa-arrow-down adjust-end"></button></div><div class="input-group-xs"><strong>Начало:</strong> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">-10</button> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">-1</button> <input class="form-control start-input"value="{start}"step="1"> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">+1</button> <button class="btn btn-sq btn-xs btn-success modify-start"type="button">+10</button> <strong>Конец:</strong> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">-10</button> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">-1</button> <input class="form-control end-input"value="{end}"step="1"> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">+1</button> <button class="btn btn-sq btn-xs btn-success modify-end"type="button">+10</button> <button class="btn btn-sq btn-xs btn-primary fragment-step"type="button"><i class="fa fa-step-forward"></i></button></div><input class="form-control fragment-description"value="{description}"placeholder="Опишите вопрос фрагмента"> <input class="form-control fragment-tags"value="{tags}"placeholder="Ключевые слова (тэги)"></div>';
 var lastFragmentId = 0;
 function getFragmentEditorHtml(fragmentData) {
     lastFragmentId++;
@@ -360,9 +360,16 @@ function loadFragmentsFromBlob(blobUrl) {
     });
 }
 
-function loadVideoData(commitUrl, videoId) {
-
+function unloadVideoData() {
     $("#fragmentMenu").empty();
+    $(".fragmentEditorTd").empty();
+    currentFragments = null;        
+}
+
+function loadVideoData(commitUrl, videoId) {
+    
+    unloadVideoData();
+
     currentFragments = [];
 
     $.get(commitUrl, function (commitData) {
@@ -499,7 +506,14 @@ function loadVideo(videoId) {
             });
         });
 
-        loadVideoData(branchData.object.url, videoId);
+        unloadVideoData();
+
+        if (branchData !== undefined) { // so the video is the saved one
+            loadVideoData(branchData.object.url, videoId);
+        }
+        else {
+            currentFragments = [];
+        }        
     });
 
     if (player == undefined) {
@@ -526,39 +540,6 @@ function log(feedback) {
     $("#logArea").text(text);
 }
 
-var ytProgressTracker = null;
-var currentTimeInput = null;
-var currentTrackButton = null;
-function stopYtTracker() {
-    if (ytProgressTracker != null) {
-        clearInterval(ytProgressTracker);
-
-        currentTimeInput.css("font-weight", "normal");
-        currentTrackButton.removeClass("btn-warning");
-        currentTrackButton.addClass("btn-primary");
-
-        ytProgressTracker = null;
-        currentTimeInput = null;
-        currentTrackButton = null;
-    }
-}
-
-function startYtTracker(timeInput, trackButton) {
-
-    stopYtTracker();
-    ytProgressTracker = setInterval(function () {
-        timeInput.val(toHhmmss(player.getCurrentTime()));
-        timeInput.trigger("input");
-    }, 1000);
-    currentTimeInput = timeInput;
-    currentTrackButton = trackButton;
-
-    currentTimeInput.css("font-weight", "bold");
-    currentTrackButton.removeClass("btn-primary");
-    currentTrackButton.addClass("btn-warning");
-}
-
-
 var fragmentLiTemplate = '<li class="fragment-li list-group-item"id="fragment-li-{index}"><table class="fragment-li-buttons"><tr><td><a class="fragmentPlayLink"href="#"><i class="fa fa-play"></i></a></td><td class="fragmentLiTextTd">{text}</td><td><a class="fragmentRemoveLink"href="#"><i class="fa fa-times"></i></a></td></tr></table></li>';
 function addFragmentLiToMenu(fragmentData) {
 
@@ -567,9 +548,29 @@ function addFragmentLiToMenu(fragmentData) {
     var fragmentIndex = currentFragments.indexOf(fragmentData);
 
     var fragmentLiHtml = fragmentLiTemplate
-        .replace("{text}", short(fragmentData.description))
+        .replace("{text}", liTitle(fragmentData))
         .replace("{index}", fragmentIndex);
     var fragmentLi = $(fragmentLiHtml).hide().prependTo("#fragmentMenu").fadeIn(500);
+
+    fragmentLi.find(".fragmentRemoveLink").click(function(e) {
+        var event = e || window.event;
+        event.stopPropagation();
+        if (fragmentLi.hasClass("active")) {
+            $(".fragmentEditorTd").empty();
+        }
+        currentFragments.splice(fragmentIndex, 1);
+        fragmentLi.remove();
+    });
+
+    fragmentLi.find(".fragmentPlayLink").click(function(e) {
+        var event = e || window.event;
+        event.stopPropagation();
+        player.loadVideoById({
+            'videoId': currentVideoId,
+            'startSeconds': fragmentData.start
+            // 'endSeconds': currentEnd
+        });        
+    });
 
     fragmentLi.click(function () { selectFragment(fragmentData, fragmentLi); });
 
@@ -596,49 +597,19 @@ function initializeFragmentEditor(fragmentData, fragmentLi) {
         //     }
         // },
         freeInput: true
-    });
-
-    $(".fragment-play", editor).click(function () {
-        stopYtTracker();
-        player.loadVideoById({
-            'videoId': currentVideoId,
-            'startSeconds': toSeconds($(".start-input", editor).val())
-            // 'endSeconds': currentEnd
-        });
-    });
+    });    
 
     $(".fragment-step", editor).click(function () {
         stopYtTracker();
         player.loadVideoById({
             'videoId': currentVideoId,
-            'startSeconds': toSeconds($(".end-input", editor).val())
+            'startSeconds': fragmentData.end
             // 'endSeconds': currentEnd
         });
     });
 
     var endInput = $(".end-input", editor);
     var startInput = $(".start-input", editor);
-
-    var trackEndButton = $(".fragment-step-track", editor);
-    trackEndButton.click(function () {
-        if (currentTrackButton === trackEndButton) {
-            stopYtTracker();
-            player.pauseVideo();
-        }
-        else {
-            player.loadVideoById({
-                'videoId': currentVideoId,
-                'startSeconds': toSeconds($(".end-input", editor).val())
-                // 'endSeconds': currentEnd
-            });
-            startYtTracker(endInput, trackEndButton);
-        }
-    });
-
-    $(".fragment-adjust-end", editor).click(function () {
-        stopYtTracker();
-        endInput.val(startInput.val());
-    });
 
     $(".modify-end", editor).click(function () {
         var dSec = parseInt($(this).text());
@@ -658,6 +629,16 @@ function initializeFragmentEditor(fragmentData, fragmentLi) {
         startInput.trigger("input");
     });
 
+    $(".adjust-start", editor).click(function () {        
+        startInput.val(toHhmmss(player.getCurrentTime()));
+        startInput.trigger("input");
+    });
+
+    $(".adjust-end", editor).click(function () {        
+        endInput.val(toHhmmss(player.getCurrentTime()));
+        endInput.trigger("input");
+    });
+
     var titleSpan = $(".fragment-title", editor);
     var descriptionInput = $(".fragment-description", editor);
     descriptionInput.change(function () {
@@ -672,7 +653,7 @@ function initializeFragmentEditor(fragmentData, fragmentLi) {
         fragmentData.start = toSeconds(startInput.val());
         fragmentData.end = toSeconds(endInput.val());
         fragmentData.tags = tagsInput.val();
-        fragmentLi.find(".fragmentLiTextTd").html(short(fragmentData.description));
+        fragmentLi.find(".fragmentLiTextTd").html(liTitle(fragmentData));
     };
 
     startInput.on("focusout change input", applyFunction);
@@ -689,6 +670,15 @@ function short(text, nSymbols = 35) {
     }
 
     return short;
+}
+
+function liTitle(fragmentData) {
+    return toHhmmss(fragmentData.start) +
+     " - " + 
+     toHhmmss(fragmentData.end) + 
+     " <i>" + 
+     short(fragmentData.description) +
+     "</i>";   
 }
 
 function isAuthDataValid() {
@@ -756,11 +746,11 @@ function submitPullRequest(videoData) {
     var body = "";
 
     videoData.fragments.forEach(function (f) {
-        body += toHhmmss(f.start) + " - " + toHhmmss(f.end) + ": " + f.description + "<br>";
+        body += toHhmmss(f.start) + " - " + toHhmmss(f.end) + ": " + decodeURIComponent(f.description) + "<br>";
     });
 
     var payload = {
-        "title": videoData.title + "(" + videoData.id + ")",
+        "title": decodeURIComponent(videoData.title) + "(" + videoData.id + ")",
         "body": body,
         "head": branchName,
         "base": "master"

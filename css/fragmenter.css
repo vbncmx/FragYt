@@ -60,6 +60,8 @@
 
 /* == </SIDEBAR> == */
 
+/* == <EDITOR> == */
+
 .fragment-description{
     margin: 10px 0 10px 0;
 }
@@ -81,14 +83,17 @@
     /* font-size: 0.75em; */
 }
 
-.fragment-title{
-    font-size: 0.75em;
-    margin-left: 10px;
+.adjust-start {
+    margin-left: 140px;
+    width: 80px;
 }
 
-.start-end-control-panel {
-    display: inline;
+.adjust-end {
+    margin-left: 204px;
+    width: 80px;
 }
+
+/* == </EDITOR> == */
 
 .fragment-play, .fragment-step, .fragment-step-track, .fragment-adjust-end{
     padding-top: 2px;
@@ -235,7 +240,7 @@
 }
 
 #fragmentMenu {
-    width: 400px;
+    width: 500px;
 }
 
 #fragmentMenu li {
