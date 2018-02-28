@@ -1,4 +1,4 @@
-var version = "0.0.0.17";
+var version = "0.0.0.19";
 
 var videoStatus = {
     New: "Новое видео",
@@ -90,10 +90,13 @@ function getDataEncoded() {
     }
 
     fragments = [];
-    $(".card").each(function (index) {
-        var card = $(this);
-        var fragment = getFragmentEncoded(card);
-        fragments.push(fragment);
+    currentFragments.forEach(function(f) {
+        fragments.push({
+            start: f.start,
+            end: f.end,
+            description: encodeURIComponent(f.description),
+            tags: encodeURIComponent(f.tags)
+        });
     });
 
     return {
@@ -128,6 +131,7 @@ function nowHhmmss() {
 function saveChanges() {
 
     var videoData = getDataEncoded();
+
     var branchName = getBranchName(videoData.id);
     var videoBranchUrl = "https://api.github.com/repos/vbncmx/vbncmx.github.io/git/refs/heads/" + branchName;
 
@@ -273,12 +277,12 @@ function forPullRequests(videoId, prsFunction) {
             request.setRequestHeader("Authorization", "token " + getAuthData().token);
         },
         url: prsUrl,
-        success: function(prsData){
-            prsData = prsData.filter(function(pr){
+        success: function (prsData) {
+            prsData = prsData.filter(function (pr) {
                 return pr.head.ref == branchName;
             });
-            prsFunction(prsData);            
-        } ,
+            prsFunction(prsData);
+        },
         error: function () {
             prsFunction(undefined);
         }
@@ -334,13 +338,12 @@ function getVideoStatus(videoId, statusFunction) {
 
 
 function loadFragmentsFromBlob(blobUrl) {
-    $("#accordion").empty();
     $.get(blobUrl, function (blobData) {
         var videoJson = atob(blobData.content);
         var videoData = JSON.parse(videoJson);
         videoData.title = decodeURIComponent(videoData.title).replace(/\+/g, " ");
         var fragments = videoData.fragments;
-        fragments.forEach(function(f) {
+        fragments.forEach(function (f) {
             f.description = decodeURIComponent(f.description).replace(/\+/g, " ");
             f.tags = decodeURIComponent(f.tags).replace(/\+/g, " ");
         })
@@ -350,7 +353,6 @@ function loadFragmentsFromBlob(blobUrl) {
         });
         videoData.fragments.forEach((function (f) {
             addFragmentLiToMenu(f);
-            // addFragmentRowToDom(f);
         }));
         if (videoData.timestamp !== undefined) {
             log("Загружено \"" + videoData.title + "\" от " + new Date(videoData.timestamp).toLocaleString());
@@ -456,6 +458,7 @@ function stopPrButtonInterval() {
 var commitLiTemplate = '<li class="commitLi"><a href="#" onclick="return loadVideoData(\'{commitUrl}\', \'{videoId}\')">{text}</a></li>';
 function loadVideo(videoId) {
 
+    currentFragments = [];
     toggleSidebar();
 
     stopPrButtonInterval();
@@ -544,7 +547,8 @@ function startYtTracker(timeInput, trackButton) {
 
     stopYtTracker();
     ytProgressTracker = setInterval(function () {
-        timeInput.val(toHhmmss(player.getCurrentTime()))
+        timeInput.val(toHhmmss(player.getCurrentTime()));
+        timeInput.trigger("input");
     }, 1000);
     currentTimeInput = timeInput;
     currentTrackButton = trackButton;
@@ -566,22 +570,26 @@ function addFragmentLiToMenu(fragmentData) {
         .replace("{text}", short(fragmentData.description))
         .replace("{index}", fragmentIndex);
     var fragmentLi = $(fragmentLiHtml).hide().prependTo("#fragmentMenu").fadeIn(500);
-    
-    fragmentLi.click(function(){
-        $(".fragment-li").removeClass("active");
-        fragmentLi.addClass("active");
-        initializeFragmentEditor(fragmentData);
-    });
 
+    fragmentLi.click(function () { selectFragment(fragmentData, fragmentLi); });
+
+    return fragmentLi;
 }
 
-function initializeFragmentEditor(fragmentData) {
+function selectFragment(fragmentData, fragmentLi) {
+    $(".fragment-li").removeClass("active");
+    fragmentLi.addClass("active");
+    initializeFragmentEditor(fragmentData, fragmentLi);
+}
+
+function initializeFragmentEditor(fragmentData, fragmentLi) {
 
     $(".fragmentEditorTd").empty();
 
     var editorHtml = getFragmentEditorHtml(fragmentData);
     var editor = $(editorHtml).hide().prependTo(".fragmentEditorTd").fadeIn(500);
-    $(".fragment-tags", editor).tagsinput({
+    var tagsInput = $(".fragment-tags", editor);
+    tagsInput.tagsinput({
         // typeaheadjs: {
         //     source: function (query, cb) {
         //         cb(['Amsterdam', 'Washington', 'Sydney', 'Beijing', 'Cairo']);
@@ -638,6 +646,7 @@ function initializeFragmentEditor(fragmentData) {
         seconds = seconds + dSec;
         seconds = seconds > 0 ? seconds : 0;
         endInput.val(toHhmmss(seconds));
+        endInput.trigger("input");
     });
 
     $(".modify-start", editor).click(function () {
@@ -646,6 +655,7 @@ function initializeFragmentEditor(fragmentData) {
         seconds = seconds + dSec;
         seconds = seconds > 0 ? seconds : 0;
         startInput.val(toHhmmss(seconds));
+        startInput.trigger("input");
     });
 
     var titleSpan = $(".fragment-title", editor);
@@ -654,7 +664,21 @@ function initializeFragmentEditor(fragmentData) {
         var title = short(descriptionInput.val());
         titleSpan.text(title);
     });
+
     $(".fragment-description", editor).focus();
+
+    var applyFunction = function () {
+        fragmentData.description = descriptionInput.val();
+        fragmentData.start = toSeconds(startInput.val());
+        fragmentData.end = toSeconds(endInput.val());
+        fragmentData.tags = tagsInput.val();
+        fragmentLi.find(".fragmentLiTextTd").html(short(fragmentData.description));
+    };
+
+    startInput.on("focusout change input", applyFunction);
+    endInput.on("focusout change input", applyFunction);
+    descriptionInput.on("focusout change input", applyFunction);
+    tagsInput.on("focusout change input", applyFunction);
 }
 
 function short(text, nSymbols = 35) {
@@ -820,7 +844,7 @@ function refreshLockerBlock() {
             success: function (collaboratorsResponse) { // user is collaborator
 
                 $("#lockerBlock").hide();
-                
+
                 if (!isInitialized) {
                     initialize();
                 }
@@ -840,14 +864,14 @@ function refreshLockerBlock() {
                     $("#collabLabel").hide();
 
                     var issueUrl = localStorage.getItem("COLLAB_REQUEST_ISSUE_URL");
-                    $.get(issueUrl, function(issueData) {
+                    $.get(issueUrl, function (issueData) {
                         if (issueData.state === "closed") {
                             if (issueData.comments > 0) {
-                                $.get(issueData.comments_url, function(comments) {
+                                $.get(issueData.comments_url, function (comments) {
                                     var message = "Ваш запрос на присоединение к репозиторию закрыт с комментариями:";
-                                    comments.forEach(function(c) {
-                                        var wrap = function(str) { return '<a target="_blank" href="' + str + '">' + str + '<\/a>'; };
-                                        var commentLine = "<br>" + c.user.login + ": " + c.body.replace(/\bhttp[^ ]+/ig, wrap);                                        
+                                    comments.forEach(function (c) {
+                                        var wrap = function (str) { return '<a target="_blank" href="' + str + '">' + str + '<\/a>'; };
+                                        var commentLine = "<br>" + c.user.login + ": " + c.body.replace(/\bhttp[^ ]+/ig, wrap);
                                         message += commentLine;
                                     });
                                     $("#collabLabel").html(message);
@@ -900,7 +924,7 @@ function sendCollabRequest() {
 
 function connectToGitHub() {
     $("#connectButton").attr("disabled", "disabled");
-    setTimeout(function(){
+    setTimeout(function () {
         $("#connectButton").removeAttr("disabled");
     }, 5000);
     window.connection().connect();
@@ -931,12 +955,20 @@ function initialize() {
     });
 
     $("#saveButton").click(function () {
+        $("#saveButton").attr("disabled", "disabled");
         saveChanges();
     });
 
     $("#addFragmentButton").click(function () {
-        initializeFragmentEditor();
         player.pauseVideo();
+        var fragmentData = {
+            description: "",
+            tags: "",
+            start: player.getCurrentTime(),
+            end: player.getCurrentTime()
+        };
+        var fragmentLi = addFragmentLiToMenu(fragmentData);
+        selectFragment(fragmentData, fragmentLi);
     });
 
     $('#myVideoSearch').on('keyup', function () {
@@ -1029,7 +1061,7 @@ require(["popper"], function (p) {
     });
 });
 
-function toggleSidebar(){
+function toggleSidebar() {
 
     var sidebar = $("#sidebar");
 
