@@ -259,6 +259,7 @@ function commitChanges(headCommitUrl, videoData) {
                                         success: function (result) {
                                             log("Сохранено в " + nowHhmmss());
                                             $("#saveButton").removeAttr("disabled");
+                                            $("#prButton").removeAttr("disabled");
                                             refreshVideoList();
                                         }
                                     });
